@@ -40,6 +40,11 @@ class TestProviderSelection:
         assert "fallback" in build_reasoner(empty_settings).name
         assert "fallback" in build_executor(empty_settings).name
 
+    def test_signal_search_needs_a_serp_zone(self, empty_settings):
+        """SERP zone이 없으면 신호 검색은 건너뛴다. 폴백을 만들지 않는다."""
+        from pharmasignal.providers import build_signal_search
+        assert build_signal_search(empty_settings) is None
+
     def test_sovereign_never_falls_back(self, empty_settings):
         """민감 텍스트 경로는 폴백하지 않고 None을 반환해야 한다.
 
@@ -112,7 +117,8 @@ class TestPipelineOffline:
         lines: list[str] = []
         report = Pipeline(empty_settings, emit=lines.append).run("GLP-1")
 
-        assert [s.stage for s in report.stages] == ["수집", "판단", "실행", "반출금지"]
+        assert [s.stage for s in report.stages] == [
+            "수집", "신호검색", "판단", "실행", "반출금지"]
         assert report.live_providers == []          # 전부 폴백
         assert any("수집 3건" in ln for ln in lines)
         assert any("폴백을 두지 않는 것이 의도된 동작" in ln for ln in lines)

@@ -1,15 +1,26 @@
 
   PharmaSignal  ·  주제: GLP-1
-  ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
+  ● Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
 
 ──────────────────────────────────────────────────────────────────
 [1/4] Bright Data  ·  흩어진 임상시험과 규제 공시를 한곳으로
 ──────────────────────────────────────────────────────────────────
-  경로: direct (fallback)
+  실패 → 직접 호출로 폴백: HTTPError('400 Client Error: Bad Request for url: https://api.brightdata.com/request')
   임상시험 15건 수집
     - [PHASE3] Comparison of NN1250 Versus Insulin Glargine in Subjects With Type 2 Diabetes
     - [PHASE1] Probiotics as a Novel Approach to Modulate Gut Hormone Secretion and Risk Factor
     - [NA] Proactive Population Health Management of Cardiovascular Disease in Primary Care
+
+──────────────────────────────────────────────────────────────────
+[1b] Bright Data  ·  안전성 신호 후보 검색
+──────────────────────────────────────────────────────────────────
+  신호 후보 6건
+    [웹] Gastrointestinal Safety Assessment of GLP-1 Receptor ... - PMC
+    [웹] Pharmacovigilance analysis of neurological adverse ...
+    [웹] Mortality and Serious Adverse Events Associated With ...
+    [웹] July - September 2023 | Potential Signals of Serious Risks ...
+    [웹] Psychiatric Safety Signals of GLP-1 Receptor Agonists
+    [웹] Adverse Events of GLP-1 Receptor Agonists for Weight Loss
 
 ──────────────────────────────────────────────────────────────────
 [2/4] Qwen Cloud  ·  문서를 구조로 바꾸고 분석 코드를 쓴다
@@ -17,46 +28,55 @@
   생성된 분석 코드:
     | from collections import Counter
     | 
-    | def clean(value, default="UNKNOWN"):
-    |     value = str(value or "").strip()
-    |     return value if value else default
+    | def normalize(value, default="UNKNOWN"):
+    |     text = "" if value is None else str(value).strip()
+    |     return text.upper() or default
     | 
-    | total_trials = len(ROWS)
+    | def normalize_sponsor(value):
+    |     text = "" if value is None else str(value).strip()
+    |     return text or "Unknown"
     | 
-    | phase_counts = Counter(clean(row.get("phase")) for row in ROWS)
-    | status_counts = Counter(clean(row.get("status")) for row in ROWS)
-    | ... (총 35줄)
+    | ... (총 51줄)
 
 ──────────────────────────────────────────────────────────────────
 [3/4] Daytona  ·  그 코드를 격리 샌드박스에서 돌려 숫자를 확인
 ──────────────────────────────────────────────────────────────────
 
-  GLP-1 Trial Landscape Report
-  ==============================
+  GLP-1 Landscape Report
   Total trials: 15
-  Trials per phase: NA: 5, PHASE1: 4, PHASE3: 3, PHASE2: 2, PHASE4: 1
-  Trials per status: COMPLETED: 9, RECRUITING: 4, ENROLLING_BY_INVITATION: 1, UNKNOWN: 1
-  Top 5 sponsors:
-  1. Eli Lilly and Company (2)
-  2. Adrian Vella (1)
-  3. Azienda Ospedaliero-Universitaria di Parma (1)
-  4. Future University in Egypt (1)
-  5. German Diabetes Center (1)
+  
+  Phase                Count
+  PHASE1                   4
+  PHASE2                   2
+  PHASE3                   3
+  PHASE4                   1
+  NA                       5
+  
+  Status                    Count
+  COMPLETED                     9
+  RECRUITING                    4
+  ENROLLING_BY_INVITATION       1
+  UNKNOWN                       1
+  
+  Top Sponsor                                   Count
+  Eli Lilly and Company                             2
+  Adrian Vella                                      1
+  Azienda Ospedaliero-Universitaria di Parma        1
+  Future University in Egypt                        1
+  German Diabetes Center                            1
 
 ──────────────────────────────────────────────────────────────────
 [대조] 생성된 집계를 고정 로직으로 다시 계산
 ──────────────────────────────────────────────────────────────────
-  10/10 일치
+  2/2 일치
 
 ──────────────────────────────────────────────────────────────────
 [4/4] Nosana  ·  밖으로 못 내보내는 텍스트는 우리 GPU 안에서만
 ──────────────────────────────────────────────────────────────────
 
-  ADVERSE EVENTS: three participants developed persistent nausea and rapid weight loss after week 6 of dosing; one participant was hospitalized with suspected cholecystitis; dose-adjustment protocol amendment will be submitted to the safety committee.
-  
-  SERIOUS: one
-  
-  NEXT ACTION: dose-adjustment protocol amendment will be submitted to the safety committee.
+  ADVERSE EVENTS: Persistent nausea and rapid weight loss, Hospitalization (suspected cholecystitis)
+  SERIOUS: Hospitalization
+  NEXT ACTION: Submit dose-adjustment protocol amendment to the safety committee
 
   실행 원장: AgentForgeAI/docs/evidence/run-glp-1.json
 
@@ -64,10 +84,11 @@
   단계      제공자                      상태
   --------------------------------------------
   수집      direct (fallback)           폴백
+  신호검색  Bright Data (SERP)          실행
   판단      Qwen Cloud                  실행
   실행      Daytona                     실행
   반출금지  Nosana                      실행
 
-  실제 호출된 스폰서 플랫폼: 3개 — Qwen Cloud, Daytona, Nosana
+  실제 호출된 스폰서 플랫폼: 4개 — Bright Data (SERP), Qwen Cloud, Daytona, Nosana
 ──────────────────────────────────────────────────────────────────
 

@@ -36,6 +36,22 @@ class Trial:
         return asdict(self)
 
 
+@dataclass(frozen=True, slots=True)
+class Signal:
+    """검색으로 찾은 안전성 신호 후보 한 건.
+
+    임상시험 등록은 무엇이 진행 중인지 알려주지만, 이상사례 논의는 문헌과
+    규제 공시와 전문지에 흩어져 있다. 담당자가 실제로 훑는 곳이 그쪽이다.
+    """
+
+    title: str
+    link: str
+    kind: str = "web"          # web | scholar
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 @dataclass(slots=True)
 class StageResult:
     """한 단계의 실행 결과. 실제 경로였는지 폴백이었는지 함께 남긴다.

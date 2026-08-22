@@ -10,35 +10,41 @@ from ..config import Settings
 from ..protocols import Collector, Executor, Reasoner
 from .collectors import (
     BrightDataCollector, BrightDataProxyCollector,
-    BrightDataSerpCollector, DirectCollector,
+    BrightDataSerpSearch, DirectCollector,
 )
 from .executors import DaytonaExecutor, LocalExecutor
 from .reasoners import NosanaReasoner, QwenReasoner, StaticReasoner
 
 __all__ = [
-    "BrightDataCollector", "BrightDataSerpCollector",
+    "BrightDataCollector", "BrightDataSerpSearch",
     "BrightDataProxyCollector", "DirectCollector",
     "QwenReasoner", "StaticReasoner", "NosanaReasoner",
     "DaytonaExecutor", "LocalExecutor",
-    "build_collector", "build_reasoner", "build_executor", "build_sovereign",
+    "build_collector", "build_signal_search",
+    "build_reasoner", "build_executor", "build_sovereign",
 ]
 
 
 def build_collector(settings: Settings) -> Collector:
-    """Bright Data 제품을 순서대로 시도하고, 다 안 되면 직접 호출로 간다.
+    """등록 데이터를 가져올 경로를 고른다.
 
-    Web Unlocker > SERP API > 프록시 순이다. 계정마다 열려 있는 제품이 달라서
-    하나가 막혔다고 스폰서를 통째로 포기하지 않도록 갈래를 나눴다.
-
-    [해커톤 이후 업데이트] 원래 Web Unlocker 하나뿐이었고, 그것이 막히자
-    수집 단계가 통째로 폴백이 됐다. 제품이 여러 개라는 것을 먼저 확인했어야 했다.
+    Web Unlocker > 프록시 > 직접 호출 순이다. SERP API는 검색 제품이라
+    여기 끼지 않고 `build_signal_search()`가 따로 맡는다.
     """
-    for candidate in (BrightDataCollector(settings),      # 제품 1: Web Unlocker
-                      BrightDataSerpCollector(settings),  # 제품 2: SERP API
-                      BrightDataProxyCollector(settings)):  # 제품 3: 프록시
+    for candidate in (BrightDataCollector(settings),        # 제품 1: Web Unlocker
+                      BrightDataProxyCollector(settings)):  # 제품 2: 프록시
         if candidate.available():
             return candidate
     return DirectCollector(settings)
+
+
+def build_signal_search(settings: Settings) -> BrightDataSerpSearch | None:
+    """안전성 신호 검색 경로. 설정이 없으면 None이고 그 단계를 건너뛴다.
+
+    등록 데이터 수집과 독립이라, 수집이 폴백이어도 이쪽은 실경로일 수 있다.
+    """
+    search = BrightDataSerpSearch(settings)
+    return search if search.available() else None
 
 
 def build_reasoner(settings: Settings) -> Reasoner:

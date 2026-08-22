@@ -14,12 +14,30 @@ OK, FAIL = "\033[92mPASS\033[0m", "\033[91mFAIL\033[0m"
 
 
 def check_brightdata(s: Settings) -> str:
-    from .providers import build_collector
-    c = build_collector(s)
-    if "Bright Data" not in c.name:
-        raise RuntimeError("Bright Data 자격 미설정 — API 키 또는 프록시 계정 필요")
-    trials = c.collect("GLP-1", limit=5)
-    return f"{c.name} · 임상시험 {len(trials)}건 · 예시: {trials[0].title[:60]}"
+    """제품이 여러 개라 설정된 것부터 시도하고, 하나라도 되면 통과로 본다."""
+    from .providers import build_collector, build_signal_search
+    tried: list[str] = []
+
+    collector = build_collector(s)
+    if "Bright Data" in collector.name:
+        try:
+            trials = collector.collect("GLP-1", limit=5)
+            return f"{collector.name} · 임상시험 {len(trials)}건 · 예시: {trials[0].title[:55]}"
+        except Exception as exc:
+            tried.append(f"{collector.name}: {exc!r:.80}")
+
+    search = build_signal_search(s)
+    if search is not None:
+        try:
+            signals = search.search_signals("antibody-drug conjugate", limit=3)
+            head = signals[0].title[:55] if signals else "(결과 없음)"
+            return f"{search.name} · 신호 후보 {len(signals)}건 · 예시: {head}"
+        except Exception as exc:
+            tried.append(f"{search.name}: {exc!r:.80}")
+
+    if not tried:
+        raise RuntimeError("Bright Data 자격 미설정 — 키와 zone을 채울 것")
+    raise RuntimeError("모든 Bright Data 제품 실패 · " + " | ".join(tried))
 
 
 def check_qwen(s: Settings) -> str:

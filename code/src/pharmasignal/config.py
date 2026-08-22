@@ -21,7 +21,7 @@ QWEN_DEFAULT_MODEL = "qwen3.8-max"
 class Settings:
     # 1) Bright Data — 수집
     brightdata_api_key: str = ""
-    brightdata_zone: str = "web_unlocker1"          # 제품 1: Web Unlocker
+    brightdata_zone: str = ""                       # 제품 1: Web Unlocker zone
     brightdata_serp_zone: str = ""                  # 제품 2: SERP API
     brightdata_proxy_user: str = ""
     brightdata_proxy_pass: str = ""
@@ -44,7 +44,7 @@ class Settings:
         g = os.environ.get
         return cls(
             brightdata_api_key=g("BRIGHTDATA_API_KEY", "").strip(),
-            brightdata_zone=g("BD_ZONE", "web_unlocker1").strip(),
+            brightdata_zone=g("BD_ZONE", "").strip(),
             brightdata_serp_zone=g("BD_SERP_ZONE", "").strip(),
             brightdata_proxy_user=g("BD_PROXY_USER", "").strip(),
             brightdata_proxy_pass=g("BD_PROXY_PASS", "").strip(),

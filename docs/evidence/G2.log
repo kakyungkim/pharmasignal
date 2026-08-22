@@ -1,9 +1,10 @@
 
   PharmaSignal
-  ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
+  ● Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
 
 === brightdata ===
-  [[91mFAIL[0m] brightdata → RuntimeError('Bright Data 자격 미설정 — API 키 또는 프록시 계정 필요')
+  Bright Data (SERP) · 신호 후보 3건 · 예시: Adverse events of antibody-drug conjugates: comparative
+  [[92mPASS[0m] brightdata
 
 === qwen ===
   모델 qwen3.8-max · 응답 ONLINE
@@ -18,10 +19,10 @@
   [[92mPASS[0m] nosana
 
 ==============================================
-  FAIL  brightdata
+  PASS  brightdata
   PASS  qwen
   PASS  daytona
   PASS  nosana
 
-  3/4 통과
+  4/4 통과
 

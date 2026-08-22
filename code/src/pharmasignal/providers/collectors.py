@@ -1,23 +1,30 @@
-"""1단계 · 찾기 — 흩어진 공개 데이터를 한곳으로.
+"""1단계 수집 — 흩어진 공개 데이터를 한곳으로.
 
-Bright Data 경로를 **제품 세 갈래**로 둔다. 계정마다 열려 있는 제품이 다르기
-때문이다. Web Unlocker가 없으면 SERP API로, 그것도 없으면 프록시로 간다.
-셋 다 Bright Data 실사용이고 반환 형태도 같다.
+Bright Data 제품을 용도에 맞게 나눠 쓴다.
 
-[해커톤 이후 업데이트 2026-08-22] 원래는 Web Unlocker 하나만 두었다. 계정에
-그 제품이 열려 있지 않아 수집 단계를 통째로 폴백으로 넘겼는데, 다른 팀은 같은
-스폰서에서 SERP API와 Scraping Browser 두 제품을 함께 붙였다. 한 제품이 막혔다고
-그 스폰서를 포기할 이유가 없었다는 뜻이다. 그래서 제품별 경로를 나눠 두었다.
+- **등록 데이터**(ClinicalTrials.gov)는 Web Unlocker나 프록시로 가져온다.
+  둘 다 없으면 공개 REST API를 직접 호출한다.
+- **안전성 신호 후보**는 SERP API로 검색한다. 문헌과 전문지에 흩어져 있어
+  검색이 맞는 도구다.
+
+[해커톤 이후 업데이트 2026-08-22] 원래는 Web Unlocker 하나만 두었고, 계정에
+그 제품이 열려 있지 않자 수집 단계를 통째로 폴백으로 넘겼다. 한 스폰서에
+제품이 여러 개라는 것을 확인하지 않은 결과였다.
+
+제품마다 하는 일이 다르다는 것도 뒤늦게 알았다. SERP zone으로 등록 API를
+통과시키려다 거부당했는데, 응답 코드가 400이 아니라 **200에 거부 메시지가
+담겨 와서** 조용히 성공한 것처럼 보일 뻔했다. 그래서 본문이 JSON인지부터 본다.
 """
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 import requests
 
 from ..config import Settings
-from ..models import Trial
+from ..models import Signal, Trial
 
 CTGOV_API = "https://clinicaltrials.gov/api/v2/studies"
 
@@ -59,7 +66,9 @@ class BrightDataCollector:
         self._s = settings
 
     def available(self) -> bool:
-        return bool(self._s.brightdata_api_key)
+        # zone까지 있어야 한다. 키만 보고 통과시키면 존재하지 않는 zone으로
+        # 요청이 나가 400을 받는다.
+        return bool(self._s.brightdata_api_key and self._s.brightdata_zone)
 
     def fetch_raw(self, url: str) -> str:
         """임의 URL을 프록시로 가져온다. 뉴스·규제 사이트 확장용."""
@@ -77,15 +86,20 @@ class BrightDataCollector:
         return _parse(self.fetch_raw(_build_query(topic, limit)))
 
 
-class BrightDataSerpCollector:
-    """Bright Data SERP API 경유 수집.
+class BrightDataSerpSearch:
+    """Bright Data SERP API로 안전성 신호 후보를 검색한다.
 
-    Web Unlocker와 같은 `api.brightdata.com/request` 엔드포인트를 쓰되 zone만
-    다르다. 계정에 Unlocker가 없어도 SERP zone은 열려 있는 경우가 있어,
-    같은 스폰서를 살리는 두 번째 경로가 된다.
+    **수집기가 아니다.** SERP는 검색엔진 결과를 돌려주는 제품이라
+    ClinicalTrials.gov의 REST API를 대신 열어 주지 못한다. 실제로 시도하면
+    robots.txt를 근거로 거부된다(no KYC residential 모드).
 
-    임상시험 등록은 공개 REST API라 검색엔진을 거칠 이유가 없다. 이 경로는
-    봇 차단이 걸린 규제 공시나 전문지를 검색으로 찾아올 때 쓴다.
+    그래서 역할을 나눴다. 임상시험 등록은 등록 API에서 가져오고, **이상사례
+    논의가 실제로 오가는 문헌과 전문지는 검색으로 찾는다.** 담당자가 아침마다
+    훑는 곳이 그쪽이라 이게 원래 하려던 일에 더 가깝다.
+
+    [해커톤 이후 업데이트 2026-08-22] 처음에는 SERP zone으로 등록 API를
+    통과시키려 했으나 제품 용도를 잘못 이해한 배선이었다. 400도 아니고 200에
+    거부 메시지가 담겨 와서 조용히 실패할 뻔했다.
     """
 
     name = "Bright Data (SERP)"
@@ -97,35 +111,48 @@ class BrightDataSerpCollector:
     def available(self) -> bool:
         return bool(self._s.brightdata_api_key and self._s.brightdata_serp_zone)
 
-    def search(self, query: str, engine: str = "google") -> str:
-        """검색 결과를 JSON으로 받는다. 규제 공시·전문지 탐색용."""
-        url = (f"https://www.{engine}.com/search"
+    # 같은 질의를 연달아 보내면 잠시 막힌다. 본문이 비거나 안내문이 오는데
+    # 응답 코드는 200이라 그냥 두면 성공으로 오해한다. 간격을 두고 다시 친다.
+    RETRIES, BACKOFF_SEC = 3, 18
+
+    def _request(self, url: str) -> str:
+        last = ""
+        for attempt in range(self.RETRIES):
+            r = requests.post(
+                self.ENDPOINT,
+                headers={"Authorization": f"Bearer {self._s.brightdata_api_key}",
+                         "Content-Type": "application/json"},
+                json={"zone": self._s.brightdata_serp_zone, "url": url, "format": "raw"},
+                timeout=self._s.timeout,
+            )
+            r.raise_for_status()
+            body = r.text.strip()
+            if body.startswith("{"):
+                return body
+            last = body or "(빈 응답)"
+            if attempt < self.RETRIES - 1:
+                time.sleep(self.BACKOFF_SEC)
+        raise RuntimeError(f"SERP가 JSON을 돌려주지 않음: {last[:120]}")
+
+    def search_signals(self, topic: str, limit: int = 6) -> list[Signal]:
+        """주제어에 안전성 관련어를 붙여 검색하고 상위 결과를 정규화한다."""
+        query = f"{topic} safety signal adverse event"
+        url = ("https://www.google.com/search"
                f"?q={requests.utils.quote(query)}&brd_json=1")
-        r = requests.post(
-            self.ENDPOINT,
-            headers={"Authorization": f"Bearer {self._s.brightdata_api_key}",
-                     "Content-Type": "application/json"},
-            json={"zone": self._s.brightdata_serp_zone, "url": url, "format": "raw"},
-            timeout=self._s.timeout,
-        )
-        r.raise_for_status()
-        return r.text
-
-    def collect(self, topic: str, limit: int = 25) -> list[Trial]:
-        """SERP zone으로 등록 API를 통과시킨다.
-
-        같은 zone이 임의 URL도 처리하므로 수집 경로로도 쓸 수 있다.
-        """
-        r = requests.post(
-            self.ENDPOINT,
-            headers={"Authorization": f"Bearer {self._s.brightdata_api_key}",
-                     "Content-Type": "application/json"},
-            json={"zone": self._s.brightdata_serp_zone,
-                  "url": _build_query(topic, limit), "format": "raw"},
-            timeout=self._s.timeout,
-        )
-        r.raise_for_status()
-        return _parse(r.text)
+        data = json.loads(self._request(url))
+        signals: list[Signal] = []
+        for kind, key in (("scholar", "scholarly_articles"), ("web", "organic")):
+            for item in (data.get(key) or []):
+                if not isinstance(item, dict):   # 문자열이 섞여 오는 경우가 있다
+                    continue
+                title = (item.get("title") or "").strip()
+                if not title:
+                    continue
+                signals.append(Signal(title=title[:160],
+                                      link=(item.get("link") or "")[:300], kind=kind))
+                if len(signals) >= limit:
+                    return signals
+        return signals
 
 
 class BrightDataProxyCollector:

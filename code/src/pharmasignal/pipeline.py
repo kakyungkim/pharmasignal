@@ -17,9 +17,10 @@ from typing import Any
 
 from . import prompts
 from .config import Settings
-from .models import RunReport, StageResult, Trial
+from .models import RunReport, Signal, StageResult, Trial
 from .providers import (
-    build_collector, build_executor, build_reasoner, build_sovereign,
+    build_collector, build_executor, build_reasoner,
+    build_signal_search, build_sovereign,
 )
 from .providers.reasoners import FALLBACK_ANALYSIS_CODE
 from .verify import CrossCheck, crosscheck
@@ -44,6 +45,7 @@ class Pipeline:
         started = time.monotonic()
         report = RunReport(topic=topic)
         trials = self._collect(report, topic, limit)
+        self._search_signals(report, topic)
         code = self._reason(report, topic, trials)
         out = self._execute(report, code, trials)
         check = self._crosscheck(out, trials)
@@ -88,6 +90,35 @@ class Pipeline:
                                degraded=_is_fallback(provider),
                                detail=f"{len(trials)}건", payload=trials))
         return trials
+
+    # ── 1b. 신호 검색 ───────────────────────────────────────────────
+    def _search_signals(self, report: RunReport, topic: str) -> list[Signal]:
+        """이상사례 논의가 오가는 문헌과 전문지를 검색으로 찾는다.
+
+        등록 데이터 수집과 독립이라, 수집이 폴백이어도 이쪽은 실경로일 수 있다.
+        검색이 실패해도 파이프라인은 계속 간다.
+        """
+        search = build_signal_search(self.settings)
+        bar = "─" * 66
+        self.emit(f"\n{bar}\n[1b] Bright Data  ·  안전성 신호 후보 검색\n{bar}")
+        if search is None:
+            self.emit("  건너뜀 — BD_SERP_ZONE 미설정")
+            report.add(StageResult("신호검색", "Bright Data (SERP)", ok=False, detail="미설정"))
+            return []
+        try:
+            signals = search.search_signals(topic)
+        except Exception as exc:
+            self.emit(f"  실패: {exc!r:.140}")
+            report.add(StageResult("신호검색", search.name, ok=False, detail=repr(exc)[:100]))
+            return []
+
+        self.emit(f"  신호 후보 {len(signals)}건")
+        for sig in signals:
+            mark = "문헌" if sig.kind == "scholar" else "웹"
+            self.emit(f"    [{mark}] {sig.title[:78]}")
+        report.add(StageResult("신호검색", search.name, ok=bool(signals),
+                               detail=f"{len(signals)}건", payload=signals))
+        return signals
 
     # ── 2. 판단 ────────────────────────────────────────────────────────
     def _reason(self, report: RunReport, topic: str, trials: list[Trial]) -> str:
