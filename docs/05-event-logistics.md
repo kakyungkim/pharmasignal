@@ -11,6 +11,34 @@
 | 행사 페이지 | https://luma.com/agentforgeseoul |
 | 팀 구성 | 최대 6명, 개인 참가 가능 |
 
+## 심사 기준 (14:00 안내 슬라이드 원문)
+
+행사 초반에 화면으로 안내된 심사 기준은 **네 가지**였다. 사진 `presentation/figures/20260822_140048.jpg`.
+
+| 기준 | 원문 |
+|---|---|
+| Completeness | Did you finish at least an MVP? |
+| Innovation | Is the concept original and ambitious? |
+| Real-Life Problem Solving | Does it solve a real problem? |
+| **Sponsor Integration** | **More sponsor APIs integrated = higher score** |
+
+행사 페이지에서 읽은 "완성도, 혁신성, 실제 문제 해결, 스폰서 제품 활용도"와 같은 네 가지인데,
+**마지막 항목의 채점 방식이 명시돼 있었다는 점이 다르다.** "많이 붙일수록 높은 점수"라고
+슬라이드에 그대로 쓰여 있었다. 정성 평가가 아니라 개수 비례였다.
+
+**두 관문이 서로 다른 방식이었다.** 녹취 확인 결과 최종 수상은 심사위원 채점이 아니라
+**참가자 투표**로 결정됐다. MC가 폼 링크와 QR로 투표를 받아 상위 3개 팀을 뽑았고,
+투표 항목은 Innovation, Completeness, Real-Life 세 가지였다.
+
+| 관문 | 결정 주체 | 기준 |
+|---|---|---|
+| Top 6 선발 | 주최·심사 측 | 위 네 가지 (Sponsor Integration 포함) |
+| 최종 3팀 | 참가자 투표 | 세 가지 (Sponsor Integration 없음) |
+
+**개수 비례로 채점되는 Sponsor Integration은 Top 6를 고르는 1차 관문에서만 작동했다.**
+우리는 그 관문에서 3/4로 걸렸다. 반대로 2번 팀(Does it actually run?)은 발표에서
+스폰서 플랫폼 사용을 명시하지 않았는데도 Top 6에 들었고 최종 수상은 못 했다.
+
 ## 크레딧 신청 링크
 
 **가입만으로는 크레딧이 붙지 않는다.** 아래 링크로 따로 신청해야 한다.
