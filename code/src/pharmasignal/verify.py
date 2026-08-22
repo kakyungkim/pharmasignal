@@ -73,6 +73,17 @@ def recompute(trials: list[Trial]) -> dict[str, int]:
     return truth
 
 
+def _context(output: str, at: int, span: int = 46) -> str:
+    """어긋난 자리 주변을 짧게 떼어 온다.
+
+    [해커톤 이후 업데이트 2026-08-23] 측정에서 불일치 한 건이 나왔는데 출력을
+    남기지 않아 원인을 밝히지 못했다. 모델이 틀린 것인지 파서가 잘못 집은 것인지
+    구분할 수 없으면 그 측정값은 쓸 수 없다. 어긋난 자리를 함께 남긴다.
+    """
+    lo = max(0, at - span // 3)
+    return " ".join(output[lo:lo + span].split())
+
+
 def crosscheck(output: str, trials: list[Trial]) -> CrossCheck:
     """실행 출력에서 읽어낸 숫자를 기준값과 대조한다.
 
@@ -91,7 +102,8 @@ def crosscheck(output: str, trials: list[Trial]) -> CrossCheck:
         if int(m.group(1)) == total:
             result.agreed += 1
         else:
-            result.mismatches.append(f"전체 건수: 출력 {m.group(1)} vs 실제 {total}")
+            result.mismatches.append(
+                f"전체 건수: 출력 {m.group(1)} vs 실제 {total} · 근처: “{_context(output, m.start())}”")
 
     for key, expected in truth.items():
         if key == "__total__":
@@ -109,7 +121,9 @@ def crosscheck(output: str, trials: list[Trial]) -> CrossCheck:
         if int(m.group(1)) == expected:
             result.agreed += 1
         else:
-            result.mismatches.append(f"{label}: 출력 {m.group(1)} vs 실제 {expected}")
+            result.mismatches.append(
+                f"{label}: 출력 {m.group(1)} vs 실제 {expected}"
+                f" · 근처: “{_context(output, m.start())}”")
 
     if result.checked == 0:
         result.notes.append("출력에 기준 라벨이 없어 대조하지 못했다")
