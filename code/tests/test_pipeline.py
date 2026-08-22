@@ -112,13 +112,14 @@ class TestPipelineOffline:
             lambda s: type("Stub", (), {
                 "name": "stub (fallback)",
                 "collect": staticmethod(lambda topic, limit=25: trials),
+                "collect_adverse": staticmethod(lambda topic, limit=25: []),
             })(),
         )
         lines: list[str] = []
         report = Pipeline(empty_settings, emit=lines.append).run("GLP-1")
 
         assert [s.stage for s in report.stages] == [
-            "수집", "신호검색", "판단", "실행", "반출금지"]
+            "수집", "이상사례", "신호검색", "판단", "실행", "반출금지"]
         assert report.live_providers == []          # 전부 폴백
         assert any("수집 3건" in ln for ln in lines)
         assert any("폴백을 두지 않는 것이 의도된 동작" in ln for ln in lines)
@@ -155,3 +156,48 @@ class TestCrossCheck:
     def test_reports_when_nothing_to_check(self, rows):
         c = crosscheck("아무 라벨도 없는 출력", rows)
         assert not c.ok and c.checked == 0 and c.notes
+
+
+class TestDisproportionality:
+    """이상사례 불균형 분석. LLM이 개입하지 않는 고정 로직이다."""
+
+    @pytest.fixture
+    def events(self):
+        from pharmasignal.models import AdverseEvent
+        # 한 용어만 유독 많이 보고된 상황을 만든다
+        out = [AdverseEvent("N1", "Neutropenia", "Blood", True, 40, 100)]
+        out += [AdverseEvent("N1", f"Other{i}", "Misc", False, 2, 100) for i in range(10)]
+        return out
+
+    def test_finds_the_disproportionate_term(self, events):
+        from pharmasignal.signal import analyze
+        rows = analyze(events)
+        assert rows[0].term == "Neutropenia"
+        assert rows[0].is_signal
+        assert rows[0].ci_low > 1.0
+
+    def test_drops_terms_below_threshold(self, events):
+        from pharmasignal.signal import analyze
+        rows = analyze(events, min_affected=5)
+        assert [r.term for r in rows] == ["Neutropenia"]
+
+    def test_handles_zero_cells_without_dividing_by_zero(self):
+        from pharmasignal.models import AdverseEvent
+        from pharmasignal.signal import analyze
+        rows = analyze([AdverseEvent("N1", "X", "Y", False, 10, 10),
+                        AdverseEvent("N1", "Z", "Y", False, 5, 10)])
+        assert all(r.ror > 0 for r in rows)
+
+    def test_summary_states_it_is_not_causality(self, events):
+        from pharmasignal.signal import analyze, summary
+        text = summary(analyze(events))
+        assert "인과성 판단이 아니라" in text
+
+
+class TestSettingsParsing:
+    """`.env`의 줄 끝 주석이 값으로 새어 들어오면 안 된다."""
+
+    def test_strips_trailing_comment(self):
+        assert Settings._clean("   # 비워 둘 것") == ""
+        assert Settings._clean("serp_api1  # 제품 2") == "serp_api1"
+        assert Settings._clean("  plain  ") == "plain"

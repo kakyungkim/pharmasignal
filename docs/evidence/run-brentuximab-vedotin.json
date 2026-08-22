@@ -1,7 +1,7 @@
 {
-  "topic": "antibody-drug conjugate",
-  "recorded_at": "2026-08-23T00:50:41+0900",
-  "elapsed_sec": 41.7,
+  "topic": "brentuximab vedotin",
+  "recorded_at": "2026-08-23T00:53:02+0900",
+  "elapsed_sec": 63.2,
   "live_providers": [
     "direct (fallback)",
     "Bright Data (SERP)",
@@ -23,7 +23,7 @@
       "provider": "direct (fallback)",
       "ok": true,
       "degraded": false,
-      "detail": "용어 208종, 신호 48종"
+      "detail": "용어 249종, 신호 65종"
     },
     {
       "stage": "신호검색",
@@ -37,7 +37,7 @@
       "provider": "Qwen Cloud",
       "ok": true,
       "degraded": false,
-      "detail": "54줄"
+      "detail": "25줄"
     },
     {
       "stage": "실행",
@@ -55,8 +55,8 @@
     }
   ],
   "crosscheck": {
-    "checked": 12,
-    "agreed": 12,
+    "checked": 11,
+    "agreed": 11,
     "ok": true,
     "mismatches": []
   }

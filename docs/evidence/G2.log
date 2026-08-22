@@ -3,7 +3,7 @@
   ● Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
 
 === brightdata ===
-  Bright Data (SERP) · 신호 후보 3건 · 예시: Adverse events of antibody-drug conjugates: comparative
+  Bright Data (SERP) · 신호 후보 3건 · 예시: Adverse events of antibody-drug conjugates - PMC - NIH
   [[92mPASS[0m] brightdata
 
 === qwen ===
@@ -15,7 +15,7 @@
   [[92mPASS[0m] daytona
 
 === nosana ===
-  모델 DeepSeek-R1-Distill-Qwen-1.5B · 응답 ONLINE
+  모델 DeepSeek-R1-Distill-Qwen-1.5B · 응답 Okay, so I need to respond with exactly one word using the w
   [[92mPASS[0m] nosana
 
 ==============================================

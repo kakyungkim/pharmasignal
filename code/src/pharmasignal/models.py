@@ -37,6 +37,26 @@ class Trial:
 
 
 @dataclass(frozen=True, slots=True)
+class AdverseEvent:
+    """등록된 시험 결과에 실린 이상사례 한 줄.
+
+    ClinicalTrials.gov가 결과 등록 시험에 대해 내주는
+    `resultsSection.adverseEventsModule`에서 온다. 용어는 MedDRA를 따른다.
+    """
+
+    nct: str
+    term: str
+    organ_system: str
+    serious: bool
+    n_affected: int
+    n_at_risk: int
+    group: str = ""
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True, slots=True)
 class Signal:
     """검색으로 찾은 안전성 신호 후보 한 건.
 

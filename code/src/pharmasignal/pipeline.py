@@ -1,6 +1,7 @@
 """4단계 파이프라인 오케스트레이션.
 
-  1 수집     Bright Data   흩어진 임상시험과 규제 공시를 한곳으로
+  1 수집     Bright Data   흩어진 임상시험과 이상사례, 관련 문헌을 한곳으로
+  1c 신호    (고정 로직)   이상사례 불균형 분석(ROR)으로 신호 후보를 가려냄
   2 판단     Qwen Cloud    문서를 구조로 바꾸고 분석 코드를 쓴다
   3 실행     Daytona       그 코드를 격리 샌드박스에서 돌려 숫자를 확인
   4 반출 금지 Nosana        밖으로 못 내보내는 텍스트는 우리 GPU 안에서만
@@ -17,12 +18,13 @@ from typing import Any
 
 from . import prompts
 from .config import Settings
-from .models import RunReport, Signal, StageResult, Trial
+from .models import AdverseEvent, RunReport, Signal, StageResult, Trial
 from .providers import (
     build_collector, build_executor, build_reasoner,
     build_signal_search, build_sovereign,
 )
 from .providers.reasoners import FALLBACK_ANALYSIS_CODE
+from .signal import Disproportionality, analyze, provenance, summary
 from .verify import CrossCheck, crosscheck
 from . import ledger
 
@@ -45,6 +47,7 @@ class Pipeline:
         started = time.monotonic()
         report = RunReport(topic=topic)
         trials = self._collect(report, topic, limit)
+        rows = self._disproportionality(report, topic, limit)
         self._search_signals(report, topic)
         code = self._reason(report, topic, trials)
         out = self._execute(report, code, trials)
@@ -90,6 +93,43 @@ class Pipeline:
                                degraded=_is_fallback(provider),
                                detail=f"{len(trials)}건", payload=trials))
         return trials
+
+    # ── 1c. 이상사례 불균형 분석 ────────────────────────────────────
+    def _disproportionality(self, report: RunReport, topic: str,
+                            limit: int) -> list[Disproportionality]:
+        """등록된 시험 결과의 이상사례를 모아 ROR을 구한다.
+
+        이 계산에는 LLM이 개입하지 않는다. 고정 로직이고, 뒤의 대조 단계에서
+        기준값 노릇을 한다.
+        """
+        provider = build_collector(self.settings)
+        bar = "─" * 66
+        self.emit(f"\n{bar}\n[1c] 이상사례 불균형 분석 (고정 로직)\n{bar}")
+        try:
+            events = provider.collect_adverse(topic, max(limit, 30))
+        except Exception as exc:
+            self.emit(f"  수집 실패: {exc!r:.140}")
+            report.add(StageResult("이상사례", provider.name, ok=False,
+                                   detail=repr(exc)[:100]))
+            return []
+
+        if not events:
+            self.emit("  결과가 등록된 시험이 없어 이상사례를 얻지 못함")
+            report.add(StageResult("이상사례", provider.name, ok=False, detail="0건"))
+            return []
+
+        for line in provenance(events):
+            self.emit(line)
+        self.emit("")
+        rows = analyze(events)
+        self.emit("")
+        for line in summary(rows).splitlines():
+            self.emit(line)
+        signals = sum(1 for r in rows if r.is_signal)
+        report.add(StageResult("이상사례", provider.name, ok=True,
+                               detail=f"용어 {len(rows)}종, 신호 {signals}종",
+                               payload=rows))
+        return rows
 
     # ── 1b. 신호 검색 ───────────────────────────────────────────────
     def _search_signals(self, report: RunReport, topic: str) -> list[Signal]:

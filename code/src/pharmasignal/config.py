@@ -38,24 +38,36 @@ class Settings:
     # 공통
     timeout: int = 90
 
+    @staticmethod
+    def _clean(value: str) -> str:
+        """줄 끝 주석을 떼고 공백을 정리한다.
+
+        `.env`에 `BD_ZONE=            # 계정에 없으면 비워 둘 것` 처럼 적으면
+        dotenv가 주석까지 값으로 읽어, 비운 줄 알았던 설정이 살아 있게 된다.
+        실제로 그렇게 해서 존재하지 않는 zone으로 요청이 나가 400을 받았다.
+        """
+        return value.split("#", 1)[0].strip()
+
     @classmethod
     def from_env(cls, env_file: str | Path | None = None) -> "Settings":
         load_dotenv(env_file or _PROJECT_ROOT / "code" / ".env")
-        g = os.environ.get
+
+        def g(key: str, default: str = "") -> str:
+            return cls._clean(os.environ.get(key, default))
         return cls(
-            brightdata_api_key=g("BRIGHTDATA_API_KEY", "").strip(),
-            brightdata_zone=g("BD_ZONE", "").strip(),
-            brightdata_serp_zone=g("BD_SERP_ZONE", "").strip(),
-            brightdata_proxy_user=g("BD_PROXY_USER", "").strip(),
-            brightdata_proxy_pass=g("BD_PROXY_PASS", "").strip(),
-            qwen_api_key=g("DASHSCOPE_API_KEY", "").strip(),
-            qwen_base_url=g("QWEN_BASE_URL", QWEN_DEFAULT_BASE_URL).strip(),
-            qwen_model=g("QWEN_MODEL", QWEN_DEFAULT_MODEL).strip(),
-            daytona_api_key=g("DAYTONA_API_KEY", "").strip(),
-            nosana_base_url=g("NOSANA_BASE_URL", "").strip(),
-            nosana_api_key=g("NOSANA_API_KEY", "nosana").strip(),
-            nosana_model=g("NOSANA_MODEL", "").strip(),
-            timeout=int(g("PHARMASIGNAL_TIMEOUT", "90")),
+            brightdata_api_key=g("BRIGHTDATA_API_KEY", ""),
+            brightdata_zone=g("BD_ZONE", ""),
+            brightdata_serp_zone=g("BD_SERP_ZONE", ""),
+            brightdata_proxy_user=g("BD_PROXY_USER", ""),
+            brightdata_proxy_pass=g("BD_PROXY_PASS", ""),
+            qwen_api_key=g("DASHSCOPE_API_KEY", ""),
+            qwen_base_url=g("QWEN_BASE_URL", QWEN_DEFAULT_BASE_URL),
+            qwen_model=g("QWEN_MODEL", QWEN_DEFAULT_MODEL),
+            daytona_api_key=g("DAYTONA_API_KEY", ""),
+            nosana_base_url=g("NOSANA_BASE_URL", ""),
+            nosana_api_key=g("NOSANA_API_KEY", "nosana"),
+            nosana_model=g("NOSANA_MODEL", ""),
+            timeout=int(g("PHARMASIGNAL_TIMEOUT", "90") or 90),
         )
 
     def configured(self) -> dict[str, bool]:

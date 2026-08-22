@@ -24,13 +24,56 @@ from typing import Any
 import requests
 
 from ..config import Settings
-from ..models import Signal, Trial
+from ..models import AdverseEvent, Signal, Trial
 
 CTGOV_API = "https://clinicaltrials.gov/api/v2/studies"
 
 
 def _build_query(topic: str, limit: int) -> str:
     return f"{CTGOV_API}?query.term={requests.utils.quote(topic)}&pageSize={limit}"
+
+
+def _build_ae_query(topic: str, limit: int) -> str:
+    """이상사례가 실린 시험만 고른다.
+
+    결과가 등록된 시험에만 `resultsSection`이 붙는다. 완료된 시험으로 좁히면
+    빈 응답을 줄일 수 있다.
+    """
+    return (f"{CTGOV_API}?query.term={requests.utils.quote(topic)}"
+            f"&filter.overallStatus=COMPLETED&pageSize={limit}"
+            f"&fields=NCTId,ResultsSection")
+
+
+def _parse_adverse(raw: str) -> list[AdverseEvent]:
+    """이상사례 모듈을 평평한 줄로 편다.
+
+    중대 사례와 기타 사례가 나뉘어 있고, 각 용어 아래 시험군별 통계가 붙는다.
+    군을 가로질러 합치는 것은 분석 단계에서 하고 여기서는 있는 그대로 편다.
+    """
+    events: list[AdverseEvent] = []
+    for study in json.loads(raw).get("studies", []):
+        nct = study.get("protocolSection", {}).get(
+            "identificationModule", {}).get("nctId", "?")
+        ae = (study.get("resultsSection") or {}).get("adverseEventsModule")
+        if not ae:
+            continue
+        for key, serious in (("seriousEvents", True), ("otherEvents", False)):
+            for item in (ae.get(key) or []):
+                term = (item.get("term") or "").strip()
+                if not term:
+                    continue
+                for st in (item.get("stats") or []):
+                    at_risk = st.get("numAtRisk") or 0
+                    if not at_risk:
+                        continue
+                    events.append(AdverseEvent(
+                        nct=nct, term=term[:80],
+                        organ_system=(item.get("organSystem") or "")[:60],
+                        serious=serious,
+                        n_affected=st.get("numAffected") or 0,
+                        n_at_risk=at_risk,
+                        group=(st.get("groupId") or "")[:16]))
+    return events
 
 
 def _parse(raw: str) -> list[Trial]:
@@ -84,6 +127,9 @@ class BrightDataCollector:
 
     def collect(self, topic: str, limit: int = 25) -> list[Trial]:
         return _parse(self.fetch_raw(_build_query(topic, limit)))
+
+    def collect_adverse(self, topic: str, limit: int = 25) -> list[AdverseEvent]:
+        return _parse_adverse(self.fetch_raw(_build_ae_query(topic, limit)))
 
 
 class BrightDataSerpSearch:
@@ -196,6 +242,9 @@ class BrightDataProxyCollector:
     def collect(self, topic: str, limit: int = 25) -> list[Trial]:
         return _parse(self.fetch_raw(_build_query(topic, limit)))
 
+    def collect_adverse(self, topic: str, limit: int = 25) -> list[AdverseEvent]:
+        return _parse_adverse(self.fetch_raw(_build_ae_query(topic, limit)))
+
 
 class DirectCollector:
     """폴백 — 공개 REST API 직접 호출. 차단이 없는 소스에서만 유효."""
@@ -212,3 +261,8 @@ class DirectCollector:
         r = requests.get(_build_query(topic, limit), timeout=self._timeout)
         r.raise_for_status()
         return _parse(r.text)
+
+    def collect_adverse(self, topic: str, limit: int = 25) -> list[AdverseEvent]:
+        r = requests.get(_build_ae_query(topic, limit), timeout=self._timeout)
+        r.raise_for_status()
+        return _parse_adverse(r.text)

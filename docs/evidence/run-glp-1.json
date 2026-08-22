@@ -1,6 +1,6 @@
 {
   "topic": "GLP-1",
-  "recorded_at": "2026-08-22T23:39:31+0900",
+  "recorded_at": "2026-08-23T00:56:47+0900",
   "elapsed_sec": 0.0,
   "live_providers": [],
   "live_count": 0,
@@ -11,6 +11,13 @@
       "ok": true,
       "degraded": true,
       "detail": "3건"
+    },
+    {
+      "stage": "이상사례",
+      "provider": "stub (fallback)",
+      "ok": false,
+      "degraded": false,
+      "detail": "0건"
     },
     {
       "stage": "신호검색",
