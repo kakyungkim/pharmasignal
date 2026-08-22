@@ -84,3 +84,9 @@
 - [Gap:Procedural] Nosana에 Qwen 계열 오픈웨이트 모델 템플릿이 준비되어 있는지 문서로 확인되지 않음. 현장 스폰서 부스에 직접 질문할 것.
 - [Gap:Procedural] Nosana 크레딧 수령에 Solana 지갑 생성이 필수인지 확인 필요. 절차가 길면 4단계는 폴백으로 전환.
 - [Gap:Assumption] 행사 제공 크레딧의 범위와 한도는 미확인.
+
+---
+
+> **문서 시점 안내.** 이 문서는 2026-08-22 해커톤 당시에 쓰였다. 행사 이후 달라진 점은 [08-post-hackathon-upgrades.md](08-post-hackathon-upgrades.md)에 정리했고, 현재 상태는 [03-gate.md](03-gate.md)에서 확인할 수 있다.
+
+행사 당시 판단이다. 결과는 Top 6 미선정이었고, 왜 그랬는지는 `memory/hackathon-outcome.md`에 있다.

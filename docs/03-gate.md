@@ -39,7 +39,24 @@ cd code && PYTHONPATH=src python -m pharmasignal.cli smoke
 | Daytona | 샌드박스 python 버전 출력 | **PASS**. sandbox python 3.14.4 (로컬 3.12.8과 달라 원격 실행 확인) |
 | Nosana | 엔드포인트 모델 응답 | **PASS**. DeepSeek-R1-Distill-Qwen-1.5B 서빙 중 |
 
-목표는 4개 중 3개 이상. 각 통과마다 실제 응답 내용이 출력되어야 하고, `docs/evidence/`에 저장한다.
+목표는 4개 중 3개 이상이었고 **현재 4/4 전부 통과**한다. 각 통과마다 실제 응답 내용이
+출력되어야 하고 `docs/evidence/`에 저장한다.
+
+**행사 중 3/4 → 행사 후 4/4.** Bright Data는 제품이 여러 개인데 Web Unlocker 하나만 보고
+포기했던 것이 원인이었다. SERP API가 다른 메뉴(Web Access API)에 있다는 것을 뒤늦게 확인했다.
+절차는 [09-brightdata-setup.md](09-brightdata-setup.md)에 있다.
+
+## G2b · 생성물 대조 (행사 후 추가)
+
+```bash
+cd code && PYTHONPATH=src python -m pharmasignal.cli run "antibody-drug conjugate"
+```
+
+- [x] 실행 출력의 집계를 고정 로직으로 다시 구해 대조
+- [x] 어긋난 항목이 있으면 그대로 표시
+- [x] 매 실행이 `docs/evidence/run-<주제>.json`으로 기록
+
+**현재: PASS.** 11개 항목 대조에서 전부 일치했다. 붙이자마자 파서 결함 하나가 잡혀 함께 고쳤다.
 
 ## G3 · 회귀 안전
 
@@ -84,14 +101,14 @@ git check-ignore code/.env
 
 `bash scripts/gate.sh` 실행 결과 (2026-08-22).
 
-| 게이트 | 결과 | 비고 |
-|---|---|---|
-| G1 완주 | **PASS** | 키 0개 상태에서 임상시험 15건 수집, 4단계 표 출력 |
-| G2 실호출 | **3/4** | Qwen, Daytona, Nosana 실호출. Bright Data만 남음 |
-| G3 회귀 | **PASS** | 11개 테스트 통과 |
-| G4 보안 | **PASS** | 소스·문서에 키 문자열 없음 |
-| G5 도메인 | 대기 | `domain-critic` 미실행 |
-| 검수 | **완료** | `demo-verifier`가 6항목 직접 실행 검증 |
-| G6 발표 | 대기 | 슬라이드·캡처 미작성 |
+| 게이트 | 행사 중 | 현재 | 비고 |
+|---|---|---|---|
+| G1 완주 | PASS | **PASS** | 키 0개 상태에서도 완주 |
+| G2 실호출 | 3/4 | **4/4** | Bright Data를 SERP API로 해결 |
+| G2b 대조 | 없었음 | **PASS** | 행사 후 추가. 11/11 일치 |
+| G3 회귀 | PASS (11개) | **PASS (19개)** | 대조 단계 테스트 4개 추가 |
+| G4 보안 | PASS | **PASS** | 소스와 문서에 키 문자열 없음 |
+| G5 도메인 | 대기 | 대기 | `domain-critic` 미실행 |
+| G6 발표 | 대기 | **PASS** | 발표자료 10장, 데모 영상, 설명 영상 |
 
-자동 게이트 3/4 통과. 남은 하나(G2)가 이번 해커톤의 승부처다.
+`bash scripts/gate.sh` 자동 게이트는 **4/4 전부 통과**한다.

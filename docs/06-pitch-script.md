@@ -153,3 +153,9 @@ Bright Data는 크레딧까지 받았는데 계정에 Web Unlocker 제품이 열
 - [ ] Nosana 배포가 아직 살아 있는지 확인 (`smoke nosana`)
 - [ ] 와이파이가 불안하면 라이브를 포기하고 4번 캡처로 진행
 - [ ] 4번에서 초록색 세 줄을 손으로 짚기
+
+---
+
+> **문서 시점 안내.** 이 문서는 2026-08-22 해커톤 당시에 쓰였다. 행사 이후 달라진 점은 [08-post-hackathon-upgrades.md](08-post-hackathon-upgrades.md)에 정리했고, 현재 상태는 [03-gate.md](03-gate.md)에서 확인할 수 있다.
+
+**이 대본은 쓰이지 않았다.** Top 6에 들지 못해 발표 기회가 없었다. 내용은 설명 영상 나레이션(`video/explain/02_나레이션.txt`)으로 옮겨 살렸다.

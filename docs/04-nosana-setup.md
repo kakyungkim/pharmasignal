@@ -47,7 +47,16 @@ cd code && PYTHONPATH=src python -m pharmasignal.cli smoke nosana
 ```
 모델명과 `ONLINE` 응답이 나오면 통과. 출력을 `docs/evidence/`에 저장한다.
 
-## 부스에서 물어볼 두 가지
+## 결과 (행사 후 확인)
+
+**두 질문 다 풀렸다.** `DeepSeek-R1` 템플릿이 존재하고 `DeepSeek-R1-Distill-Qwen-1.5B`를
+vLLM으로 서빙한다. 크레딧은 플랫폼별 신청 링크로 받는 구조였다. 배포한 엔드포인트로
+4단계가 실제로 돌았고, 지금도 `pharmasignal smoke nosana`로 확인된다.
+
+**한 가지 함정.** 엔드포인트 루트를 열면 `{"detail":"Not Found"}`가 뜨는데 이건 정상이다.
+vLLM은 루트에 라우트가 없다. `/v1/models`를 쳐야 한다.
+
+## 부스에서 물어볼 두 가지 (당시 기록)
 
 1. **LLM 추론 템플릿 이름.** vLLM이나 Ollama 기반으로 Qwen 계열을 띄우는 템플릿이 있는가
 2. **해커톤 전용 크레딧 코드.** 있는가, 어떻게 등록하는가

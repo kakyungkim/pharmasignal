@@ -87,7 +87,11 @@ AgentForgeAI/
 │   └── tests/
 ├── scripts/
 │   ├── gate.sh                완료 게이트 자동 실행
-│   └── record_demo.sh         데모 영상 녹화
+│   └── record_demo.py         데모 영상 생성
+├── video/
+│   ├── demo.mp4               실행 데모 41초
+│   └── explain/               설명 영상과 슬라이드 13장
+├── research/                  유사 시스템 조사
 ├── .claude/                   하네스
 │   ├── agents/                역할별 에이전트
 │   └── skills/                재사용 절차
@@ -118,20 +122,31 @@ AgentForgeAI/
 | [docs/07-teams.md](docs/07-teams.md) | 발표팀 6곳의 접근과 우리와의 대비 |
 | [docs/08-post-hackathon-upgrades.md](docs/08-post-hackathon-upgrades.md) | **해커톤 이후 무엇을 배워 무엇을 바꿨나** |
 | [docs/09-brightdata-setup.md](docs/09-brightdata-setup.md) | 마지막 플랫폼을 붙여 4/4를 만드는 절차 |
+| [research/](research/) | 유사 시스템 조사 |
 | [memory/MEMORY.md](memory/MEMORY.md) | 세션 간 이어지는 프로젝트 기억 |
 
-## 해커톤 이후 (2026-08-22 행사 종료 후 갱신)
+## 행사 중과 이후
 
-행사에서는 Qwen Cloud, Daytona, Nosana 세 곳을 실호출로 연동했고 Bright Data는
-계정에 Web Unlocker가 열려 있지 않아 붙이지 못했다. Top 6에 들지 못했다.
+| | 행사 중 (8/22 15:30 마감) | 현재 |
+|---|---|---|
+| 실호출 플랫폼 | 3/4 | **4/4** |
+| 자동 테스트 | 11개 | **19개** |
+| 완료 게이트 | 3/4 | **4/4** |
+| 생성물 대조 | 없음 | **11/11 일치** |
+| 실행 원장 | 없음 | 실행마다 JSON 기록 |
+| 영상 | 없음 | 데모 41초, 설명 2분 47초 |
+| 결과 | Top 6 미선정 | |
 
-종료 후 다른 팀의 접근을 살펴 배운 것을 코드와 문서에 반영했다.
-무엇을 왜 바꿨는지는 [docs/08-post-hackathon-upgrades.md](docs/08-post-hackathon-upgrades.md)에 있다.
-코드에서도 해당 위치에 `[해커톤 이후 업데이트]`로 표시해 두었다.
+행사 중에는 Bright Data를 붙이지 못했다. 계정에 Web Unlocker가 없었고 프록시 생성이
+카드 등록을 요구했는데, **한 스폰서에 제품이 여러 개라는 것을 확인하지 않은 것이 실책**이었다.
+SERP API는 다른 메뉴에 있었다.
 
-주요 변경은 네 가지다. Bright Data 제품 경로를 세 갈래로 나눈 것,
-단계 이름을 사용자의 행동으로 바꾼 것, 플랫폼 표에 필수성을 적은 것,
-데모 녹화 스크립트를 추가한 것이다.
+종료 후 다른 팀의 접근을 살펴 배운 것을 코드와 문서에 반영했다. 무엇을 왜 바꿨는지는
+[docs/08-post-hackathon-upgrades.md](docs/08-post-hackathon-upgrades.md)에 있고,
+코드에도 해당 위치마다 `[해커톤 이후 업데이트]`로 표시했다.
+
+문서마다 언제 쓰인 것인지 밝혀 두었다. 기획 문서(00~02)와 발표 대본(06)은 당시 기록이고,
+게이트 현황(03)과 이후 업데이트(08)가 현재 상태를 담는다.
 
 ## 제출
 

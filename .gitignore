@@ -11,3 +11,14 @@ video/*
 !video/demo.mp4
 webtoon/
 scripts/make_webtoon.py
+tone-samples/
+video/explain/s_*.mp3
+video/explain/t_*.mp3
+video/explain/cap_*.png
+video/explain/slide_*.png
+video/explain/frame_*.png
+video/explain/_*
+video/explain/bgm/*.wav
+video/explain/*.mp3
+video/explain/*.mp4
+!video/explain/final.mp4

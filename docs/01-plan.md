@@ -73,3 +73,9 @@
 1. Nosana 가입·크레딧부터 착수 (대기 시간이 가장 김)
 2. 대기 중에 Bright Data zone 생성, Qwen 키 확인
 3. 스폰서 부스에 두 가지를 직접 질문: **Qwen 추론 템플릿 이름**, **해커톤 전용 크레딧 코드**
+
+---
+
+> **문서 시점 안내.** 이 문서는 2026-08-22 해커톤 당시에 쓰였다. 행사 이후 달라진 점은 [08-post-hackathon-upgrades.md](08-post-hackathon-upgrades.md)에 정리했고, 현재 상태는 [03-gate.md](03-gate.md)에서 확인할 수 있다.
+
+이 계획대로 진행했고 마감은 지켰다. 다만 1차 관문이 제출물 심사라는 것을 확인하지 않은 것이 실책이었다. 그 교훈은 `.claude/skills/hackathon-sprint/SKILL.md` 맨 앞에 반영했다.

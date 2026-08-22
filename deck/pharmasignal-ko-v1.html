@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PharmaSignal</title>
+<style>
+  :root{
+    --bg:#0f1418; --panel:#161d23; --line:#26313a;
+    --fg:#eef3f6; --muted:#93a4b1; --accent:#4fd1a5; --warn:#e8b04b;
+    --bd:#5b8def; --qw:#a97bf0; --dy:#4fd1a5; --no:#f0776c;
+    --pad:clamp(24px,5vw,72px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--fg);
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  section{min-height:100vh;scroll-snap-align:start;padding:var(--pad);
+    display:flex;flex-direction:column;justify-content:center;gap:clamp(16px,2.5vh,32px);
+    border-bottom:1px solid var(--line);position:relative}
+  .num{position:absolute;top:var(--pad);right:var(--pad);
+    color:var(--muted);font-size:.8rem;letter-spacing:.18em}
+  h1{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1.12;letter-spacing:-.02em;font-weight:800}
+  h2{font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.2;letter-spacing:-.015em;font-weight:700}
+  .kicker{color:var(--accent);font-size:clamp(.8rem,1.6vw,1rem);
+    letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+  .lead{font-size:clamp(1rem,2.2vw,1.45rem);color:var(--muted);max-width:60ch}
+  ul{list-style:none;display:flex;flex-direction:column;gap:.7em;
+    font-size:clamp(.98rem,1.9vw,1.3rem);max-width:64ch}
+  li{padding-left:1.4em;position:relative}
+  li::before{content:"";position:absolute;left:0;top:.62em;
+    width:.5em;height:.5em;border-radius:50%;background:var(--accent)}
+  .grid4{display:grid;gap:clamp(10px,1.4vw,18px);
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:clamp(16px,2vw,26px);display:flex;flex-direction:column;gap:.5em;
+    border-top:3px solid var(--c,var(--accent))}
+  .card .step{color:var(--muted);font-size:.78rem;letter-spacing:.16em}
+  .card .who{font-size:clamp(1.05rem,2vw,1.35rem);font-weight:700;color:var(--c,var(--fg))}
+  .card .role{font-size:clamp(.86rem,1.5vw,1rem);color:var(--fg)}
+  .card .why{font-size:clamp(.78rem,1.3vw,.92rem);color:var(--muted)}
+  .stats{display:grid;gap:clamp(10px,1.4vw,18px);
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .stat{background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:clamp(14px,1.8vw,24px)}
+  .stat b{display:block;font-size:clamp(1.6rem,4vw,2.6rem);
+    font-weight:800;color:var(--accent);line-height:1.1}
+  .stat span{color:var(--muted);font-size:clamp(.78rem,1.3vw,.92rem)}
+  .quote{border-left:3px solid var(--accent);padding-left:1em;
+    font-size:clamp(1.05rem,2.4vw,1.6rem);max-width:52ch}
+  .tag{display:inline-block;background:var(--panel);border:1px solid var(--line);
+    border-radius:999px;padding:.3em .9em;font-size:.8rem;color:var(--muted)}
+  code{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    padding:.12em .45em;font-size:.86em}
+  .scroll{overflow-x:auto}
+  @media (max-width:640px){ section{min-height:auto;padding-block:14vh} .num{display:none} }
+  .navbar{position:fixed;left:0;bottom:0;width:100%;height:3px;
+    background:rgba(255,255,255,.08);z-index:50}
+  .navfill{height:100%;width:0;background:var(--accent);transition:width .3s ease}
+  .hint{position:fixed;right:var(--pad);bottom:18px;z-index:50;
+    color:var(--muted);font-size:.75rem;letter-spacing:.12em;
+    transition:opacity 1s ease;pointer-events:none}
+  body{cursor:pointer}
+  .lang{position:fixed;left:var(--pad);bottom:14px;z-index:60;
+    color:var(--muted);font-size:.75rem;text-decoration:none;
+    border:1px solid var(--line);border-radius:999px;padding:.25em .8em;
+    background:var(--panel)}
+  .lang:hover{color:var(--fg)}
+  .term{background:#0a0f13;border:1px solid var(--line);border-radius:12px;
+    padding:clamp(12px,1.6vw,20px);overflow-x:auto;
+    font-family:'SF Mono',ui-monospace,Menlo,monospace;
+    font-size:clamp(.62rem,1.15vw,.82rem);line-height:1.55;white-space:pre}
+  .term .c{color:var(--muted)} .term .g{color:var(--accent);font-weight:600}
+  .term .y{color:#e8b04b} .term .r{color:#f0776c} .term .b{color:#5b8def}
+  .termbar{display:flex;gap:6px;margin-bottom:10px}
+  .termbar i{width:10px;height:10px;border-radius:50%;background:#2c3a45;display:block}
+  .flow{width:100%;height:auto;display:block}
+  .flow text{font-family:Pretendard,-apple-system,sans-serif}
+  .end{align-items:center;text-align:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,rgba(79,209,165,.10),transparent 62%)}
+  .end h1{font-size:clamp(2rem,6.4vw,4.4rem);max-width:20ch;line-height:1.14}
+  .end .sub{color:var(--muted);font-size:clamp(1rem,2.2vw,1.4rem);max-width:46ch}
+  .thanks{font-size:clamp(2.4rem,8vw,5.4rem);font-weight:800;letter-spacing:-.03em;
+    background:linear-gradient(92deg,#4fd1a5,#5b8def 55%,#a97bf0);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .logos{display:flex;flex-wrap:wrap;gap:.55em;justify-content:center}
+  .logos span{border:1px solid var(--line);background:var(--panel);border-radius:999px;
+    padding:.34em 1em;font-size:clamp(.74rem,1.4vw,.92rem);color:var(--muted)}
+  .logos span b{color:var(--c);font-weight:700}
+  .viz{width:100%;height:auto;display:block;max-width:900px}
+  .viz text{font-family:Pretendard,-apple-system,sans-serif}
+  .cap{color:var(--muted);font-size:clamp(.72rem,1.3vw,.86rem)}
+  .rigor{display:grid;gap:clamp(10px,1.4vw,18px);
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .rig{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:clamp(14px,1.8vw,22px);border-left:3px solid var(--c,var(--accent))}
+  .rig b{display:block;font-size:clamp(1.4rem,3.4vw,2.1rem);font-weight:800;
+    color:var(--c,var(--accent));line-height:1.15}
+  .rig span{display:block;color:var(--fg);font-size:clamp(.84rem,1.5vw,1rem);margin-top:.3em}
+  .rig i{display:block;color:var(--muted);font-size:clamp(.74rem,1.25vw,.86rem);
+    font-style:normal;margin-top:.25em}
+</style>
+</head>
+<body>
+
+<!-- 1 · 표지 + 문제 -->
+<section>
+  <span class="num">01 / 08</span>
+  <p class="kicker">Agent Forge Seoul 2026</p>
+  <h1>PharmaSignal</h1>
+  <p class="lead">신약 안전성 신호를 훑고, 근거까지 스스로 만드는 에이전트</p>
+    <svg class="viz" viewBox="0 0 900 200" role="img" aria-label="흩어진 출처가 담당자에게 몰리는 구조">
+    <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#3d4d5a"/></marker></defs>
+    <rect x="10" y="12" width="240" height="44" rx="9" fill="#161d23" stroke="#26313a"/><text x="26" y="32" fill="#eef3f6" font-size="12.5" font-weight="600">임상시험 등록</text><text x="26" y="48" fill="#93a4b1" font-size="11">ClinicalTrials.gov</text>
+    <rect x="10" y="66" width="240" height="44" rx="9" fill="#161d23" stroke="#26313a"/><text x="26" y="86" fill="#eef3f6" font-size="12.5" font-weight="600">규제 공시</text><text x="26" y="102" fill="#93a4b1" font-size="11">FDA, EMA</text>
+    <rect x="10" y="120" width="240" height="44" rx="9" fill="#161d23" stroke="#26313a"/><text x="26" y="140" fill="#eef3f6" font-size="12.5" font-weight="600">전문지, 문헌</text><text x="26" y="156" fill="#93a4b1" font-size="11">봇 차단 다수</text>
+    <line x1="250" y1="34"  x2="392" y2="92" stroke="#3d4d5a" stroke-width="1.4" marker-end="url(#a2)"/>
+    <line x1="250" y1="88"  x2="392" y2="98" stroke="#3d4d5a" stroke-width="1.4" marker-end="url(#a2)"/>
+    <line x1="250" y1="142" x2="392" y2="106" stroke="#3d4d5a" stroke-width="1.4" marker-end="url(#a2)"/>
+    <circle cx="440" cy="100" r="40" fill="#161d23" stroke="#e8b04b" stroke-width="1.8"/>
+    <text x="440" y="96"  fill="#e8b04b" font-size="13" font-weight="700" text-anchor="middle">담당자</text>
+    <text x="440" y="114" fill="#93a4b1" font-size="11" text-anchor="middle">매일 수작업</text>
+    <line x1="484" y1="100" x2="556" y2="100" stroke="#3d4d5a" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#a2)"/>
+    <rect x="562" y="76" width="180" height="48" rx="10" fill="#161d23" stroke="#26313a"/>
+    <text x="652" y="96"  fill="#eef3f6" font-size="12" font-weight="600" text-anchor="middle">정리된 신호 보고</text>
+    <text x="652" y="113" fill="#93a4b1" font-size="11" text-anchor="middle">며칠 지연</text>
+    <rect x="766" y="68" width="126" height="64" rx="10" fill="rgba(240,119,108,.10)" stroke="#f0776c" stroke-dasharray="4 4"/>
+    <text x="829" y="94"  fill="#f0776c" font-size="11.5" font-weight="700" text-anchor="middle">사내 임상 문서</text>
+    <text x="829" y="112" fill="#93a4b1" font-size="10.5" text-anchor="middle">LLM 사용 불가</text>
+  </svg>
+
+  <ul>
+    <li>임상시험 등록, 규제 공시, 전문지에 신호가 흩어져 있음</li>
+    <li>담당자가 매일 손으로 훑는 반복 작업</li>
+    <li>사내 임상 문서는 외부 API로 반출 불가</li>
+  </ul>
+</section>
+
+<!-- 2 · 해법 -->
+<section>
+  <span class="num">02 / 08</span>
+  <p class="kicker">해법</p>
+  <h2>계열을 나란히 놓으면 지형이 보임</h2>
+  <p class="lead">
+    계열 이름만 넣으면 수집과 추출을 거쳐 분석 코드가 만들어지고 실행까지 이어짐.
+    GLP-1부터 CAR-T까지 9개 계열을 나란히 놓자 성숙도 기울기가 그대로 드러남.
+  </p>
+  <svg class="viz" viewBox="0 0 600 360" role="img" aria-label="계열별 임상 단계 분포"><text x="8" y="15" fill="#eef3f6" font-size="12.5" font-weight="700">계열별 임상 단계 분포</text><text x="8" y="31" fill="#93a4b1" font-size="10">계열당 40건 조회, 단계가 표기된 시험만 집계. 오른쪽은 후기비중(3·4상 / 단계표기)</text><rect x="124" y="20" width="10" height="10" rx="2" fill="#93a4b1" opacity="0.28"/><text x="139+0" x="139" y="29" fill="#93a4b1" font-size="10">1상</text><rect x="192" y="20" width="10" height="10" rx="2" fill="#93a4b1" opacity="0.5"/><text x="139+0" x="207" y="29" fill="#93a4b1" font-size="10">2상</text><rect x="260" y="20" width="10" height="10" rx="2" fill="#93a4b1" opacity="0.78"/><text x="139+0" x="275" y="29" fill="#93a4b1" font-size="10">3상</text><rect x="328" y="20" width="10" height="10" rx="2" fill="#93a4b1" opacity="1.0"/><text x="139+0" x="343" y="29" fill="#93a4b1" font-size="10">4상</text><text x="8" y="74" fill="#eef3f6" font-size="11.5" font-weight="600">GLP-1</text><rect x="124" y="58" width="91" height="24" fill="#e8b04b" opacity="0.28"/><text x="169" y="74" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">5</text><rect x="215" y="58" width="109" height="24" fill="#e8b04b" opacity="0.5"/><text x="269" y="74" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="324" y="58" width="109" height="24" fill="#e8b04b" opacity="0.78"/><text x="379" y="74" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="433" y="58" width="91" height="24" fill="#e8b04b" opacity="1.0"/><text x="479" y="74" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">5</text><text x="540" y="74" fill="#e8b04b" font-size="12.5" font-weight="800">50%</text><text x="8" y="106" fill="#eef3f6" font-size="11.5" font-weight="600">펩타이드 치료제</text><rect x="124" y="90" width="77" height="24" fill="#e8b04b" opacity="0.28"/><text x="163" y="106" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="201" y="90" width="155" height="24" fill="#e8b04b" opacity="0.5"/><text x="279" y="106" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">12</text><rect x="356" y="90" width="129" height="24" fill="#e8b04b" opacity="0.78"/><text x="421" y="106" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">10</text><rect x="485" y="90" width="39" height="24" fill="#e8b04b" opacity="1.0"/><text x="505" y="106" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">3</text><text x="540" y="106" fill="#e8b04b" font-size="12.5" font-weight="800">42%</text><text x="8" y="138" fill="#eef3f6" font-size="11.5" font-weight="600">방사성리간드</text><rect x="124" y="122" width="227" height="24" fill="#5b8def" opacity="0.28"/><text x="237" y="138" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">17</text><rect x="351" y="122" width="80" height="24" fill="#5b8def" opacity="0.5"/><text x="391" y="138" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="431" y="122" width="53" height="24" fill="#5b8def" opacity="0.78"/><text x="457" y="138" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">4</text><rect x="484" y="122" width="40" height="24" fill="#5b8def" opacity="1.0"/><text x="504" y="138" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">3</text><text x="540" y="138" fill="#5b8def" font-size="12.5" font-weight="800">23%</text><text x="8" y="170" fill="#eef3f6" font-size="11.5" font-weight="600">siRNA</text><rect x="124" y="154" width="175" height="24" fill="#5b8def" opacity="0.28"/><text x="212" y="170" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">14</text><rect x="299" y="154" width="138" height="24" fill="#5b8def" opacity="0.5"/><text x="368" y="170" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">11</text><rect x="436" y="154" width="75" height="24" fill="#5b8def" opacity="0.78"/><text x="474" y="170" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="512" y="154" width="12" height="24" fill="#5b8def" opacity="1.0"/><text x="540" y="170" fill="#5b8def" font-size="12.5" font-weight="800">22%</text><text x="8" y="202" fill="#eef3f6" font-size="11.5" font-weight="600">단일클론항체</text><rect x="124" y="186" width="185" height="24" fill="#5b8def" opacity="0.28"/><text x="216" y="202" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">18</text><rect x="309" y="186" width="133" height="24" fill="#5b8def" opacity="0.5"/><text x="375" y="202" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">13</text><rect x="442" y="186" width="62" height="24" fill="#5b8def" opacity="0.78"/><text x="473" y="202" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><rect x="503" y="186" width="21" height="24" fill="#5b8def" opacity="1.0"/><text x="514" y="202" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">2</text><text x="540" y="202" fill="#5b8def" font-size="12.5" font-weight="800">21%</text><text x="8" y="234" fill="#eef3f6" font-size="11.5" font-weight="600">ADC</text><rect x="124" y="218" width="173" height="24" fill="#4fd1a5" opacity="0.28"/><text x="210" y="234" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">16</text><rect x="297" y="218" width="162" height="24" fill="#4fd1a5" opacity="0.5"/><text x="378" y="234" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">15</text><rect x="459" y="218" width="32" height="24" fill="#4fd1a5" opacity="0.78"/><text x="475" y="234" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">3</text><rect x="492" y="218" width="32" height="24" fill="#4fd1a5" opacity="1.0"/><text x="508" y="234" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">3</text><text x="540" y="234" fill="#4fd1a5" font-size="12.5" font-weight="800">16%</text><text x="8" y="266" fill="#eef3f6" font-size="11.5" font-weight="600">mRNA 백신</text><rect x="124" y="250" width="176" height="24" fill="#a97bf0" opacity="0.28"/><text x="212" y="266" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">11</text><rect x="300" y="250" width="176" height="24" fill="#a97bf0" opacity="0.5"/><text x="388" y="266" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">11</text><rect x="476" y="250" width="32" height="24" fill="#a97bf0" opacity="0.78"/><text x="492" y="266" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">2</text><rect x="508" y="250" width="16" height="24" fill="#a97bf0" opacity="1.0"/><text x="540" y="266" fill="#a97bf0" font-size="12.5" font-weight="800">12%</text><text x="8" y="298" fill="#eef3f6" font-size="11.5" font-weight="600">이중항체</text><rect x="124" y="282" width="227" height="24" fill="#a97bf0" opacity="0.28"/><text x="238" y="298" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">21</text><rect x="351" y="282" width="130" height="24" fill="#a97bf0" opacity="0.5"/><text x="416" y="298" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">12</text><rect x="481" y="282" width="43" height="24" fill="#a97bf0" opacity="0.78"/><text x="502" y="298" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">4</text><text x="540" y="298" fill="#a97bf0" font-size="12.5" font-weight="800">11%</text><text x="8" y="330" fill="#eef3f6" font-size="11.5" font-weight="600">CAR-T</text><rect x="124" y="314" width="311" height="24" fill="#f0776c" opacity="0.28"/><text x="280" y="330" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">21</text><rect x="435" y="314" width="89" height="24" fill="#f0776c" opacity="0.5"/><text x="480" y="330" fill="#0f1418" font-size="10.5" font-weight="700" text-anchor="middle">6</text><text x="540" y="330" fill="#f0776c" font-size="12.5" font-weight="800">0%</text></svg>
+  <div class="stats">
+    <div class="stat"><b>9계열</b><span>한 번에 비교한 신약 계열</span></div>
+    <div class="stat"><b>0% vs 50%</b><span>후기 임상 비중, CAR-T와 GLP-1</span></div>
+    <div class="stat"><b>0줄</b><span>사람이 쓴 분석 코드</span></div>
+  </div>
+</section>
+
+<!-- 3 · 아키텍처 -->
+<section>
+  <span class="num">03 / 08</span>
+  <p class="kicker">아키텍처</p>
+  <h2>네 플랫폼, 네 가지 역할</h2>
+  <div class="grid4">
+    <div class="card" style="--c:var(--bd)">
+      <span class="step">1 · 수집</span>
+      <span class="who">Bright Data</span>
+      <span class="role">공개 임상시험, 규제 공시, 뉴스</span>
+      <span class="why">봇 차단과 지역 제한 통과</span>
+    </div>
+    <div class="card" style="--c:var(--qw)">
+      <span class="step">2 · 판단</span>
+      <span class="who">Qwen Cloud</span>
+      <span class="role">구조화 추출과 분석 코드 생성</span>
+      <span class="why">긴 문서를 스키마로 변환</span>
+    </div>
+    <div class="card" style="--c:var(--dy)">
+      <span class="step">3 · 실행</span>
+      <span class="who">Daytona</span>
+      <span class="role">생성된 코드를 격리 샌드박스에서 실행</span>
+      <span class="why">모델이 쓴 코드를 로컬에 두지 않음</span>
+    </div>
+    <div class="card" style="--c:var(--no)">
+      <span class="step">4 · 반출 금지</span>
+      <span class="who">Nosana</span>
+      <span class="role">밖으로 못 내보내는 텍스트만 우리 GPU에서 추론</span>
+      <span class="why">요청이 상용 API로 가지 않음</span>
+    </div>
+  </div>
+    <svg class="flow" viewBox="0 0 980 190" role="img" aria-label="4단계 파이프라인 흐름도">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="#3d4d5a"/></marker>
+      <linearGradient id="sov" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f0776c" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#f0776c" stop-opacity=".04"/></linearGradient>
+    </defs>
+    <rect x="726" y="8" width="246" height="174" rx="14" fill="url(#sov)" stroke="#f0776c" stroke-dasharray="5 4" stroke-opacity=".55"/>
+    <text x="849" y="30" fill="#f0776c" font-size="12" font-weight="700" text-anchor="middle">반출 금지 구역</text>
+
+    <text x="14" y="34" fill="#93a4b1" font-size="13">질의</text>
+    <rect x="10" y="46" width="150" height="52" rx="10" fill="#161d23" stroke="#26313a"/>
+    <text x="85" y="70" fill="#eef3f6" font-size="13" font-weight="600" text-anchor="middle">ADC</text>
+    <text x="85" y="87" fill="#93a4b1" font-size="11" text-anchor="middle">안전성 신호</text>
+
+    <rect x="200" y="46" width="146" height="52" rx="10" fill="#161d23" stroke="#5b8def" stroke-width="1.6"/><text x="273" y="69" fill="#5b8def" font-size="13" font-weight="700" text-anchor="middle">Bright Data</text><text x="273" y="86" fill="#93a4b1" font-size="11" text-anchor="middle">수집</text>
+    <rect x="382" y="46" width="146" height="52" rx="10" fill="#161d23" stroke="#a97bf0" stroke-width="1.6"/><text x="455" y="69" fill="#a97bf0" font-size="13" font-weight="700" text-anchor="middle">Qwen Cloud</text><text x="455" y="86" fill="#93a4b1" font-size="11" text-anchor="middle">판단</text>
+    <rect x="564" y="46" width="146" height="52" rx="10" fill="#161d23" stroke="#4fd1a5" stroke-width="1.6"/><text x="637" y="69" fill="#4fd1a5" font-size="13" font-weight="700" text-anchor="middle">Daytona</text><text x="637" y="86" fill="#93a4b1" font-size="11" text-anchor="middle">격리 실행</text>
+    <rect x="746" y="46" width="146" height="52" rx="10" fill="#161d23" stroke="#f0776c" stroke-width="1.6"/><text x="819" y="69" fill="#f0776c" font-size="13" font-weight="700" text-anchor="middle">Nosana</text><text x="819" y="86" fill="#93a4b1" font-size="11" text-anchor="middle">사내 전용</text>
+
+    <line x1="164" y1="72" x2="196" y2="72" stroke="#3d4d5a" stroke-width="1.6" marker-end="url(#ar)"/>
+    <line x1="346" y1="72" x2="378" y2="72" stroke="#3d4d5a" stroke-width="1.6" marker-end="url(#ar)"/>
+    <line x1="528" y1="72" x2="560" y2="72" stroke="#3d4d5a" stroke-width="1.6" marker-end="url(#ar)"/>
+    <line x1="710" y1="72" x2="742" y2="72" stroke="#3d4d5a" stroke-width="1.6" marker-end="url(#ar)"/>
+
+    <rect x="200" y="128" width="510" height="44" rx="10" fill="#161d23" stroke="#26313a"/>
+    <text x="455" y="147" fill="#93a4b1" font-size="12" text-anchor="middle">공개 데이터 경로</text>
+    <text x="455" y="164" fill="#5b8def" font-size="11" text-anchor="middle">상용 API 사용 가능</text>
+    <text x="849" y="150" fill="#f0776c" font-size="12" text-anchor="middle" font-weight="600">사내 임상 문서</text>
+    <text x="849" y="167" fill="#93a4b1" font-size="11" text-anchor="middle">자체 GPU에서만 추론</text>
+  </svg>
+<p class="lead">편의가 아니라 데이터 민감도에 따라 추론 경로를 나눔.</p>
+</section>
+
+<!-- 4 · 데모 -->
+<section>
+  <span class="num">04 / 08</span>
+  <p class="kicker">데모</p>
+  <h2>실제로 돌아가는 파이프라인</h2>
+    <div class="term"><div class="termbar"><i></i><i></i><i></i></div><span class="c">$ pharmasignal run "antibody-drug conjugate"</span>
+
+<span class="c">──────────────────────────────────────────────</span>
+<span class="y">[2/4] Qwen Cloud</span>  ·  분석 코드 생성
+<span class="c">──────────────────────────────────────────────</span>
+  <span class="c">| from collections import Counter</span>
+  <span class="c">| total = len(ROWS)</span>
+  <span class="c">| for phase, n in Counter(r["phase"] for r in ROWS).most_common():</span>
+  <span class="c">|     print(f"  - {phase}: {n} ({n/total*100:.1f}%)")</span>
+
+<span class="c">──────────────────────────────────────────────</span>
+<span class="g">[3/4] Daytona</span>  ·  생성 코드를 격리 샌드박스에서 실행
+<span class="c">──────────────────────────────────────────────</span>
+  RECRUITING: 5 (20.0%)      ACTIVE_NOT_RECRUITING: 4 (16.0%)
+  TERMINATED: 1 (4.0%)       NOT_YET_RECRUITING: 1 (4.0%)
+
+  Top 5 sponsors by trial count:
+  1. GlaxoSmithKline: 4        2. National Cancer Institute: 2
+  3. Shanghai Miracogen: 2     4. City of Hope Medical Center: 1
+
+<span class="c">──────────────────────────────────────────────</span>
+<span class="r">[4/4] Nosana</span>  ·  밖으로 못 내보내는 텍스트를 우리 GPU에서 추론
+<span class="c">──────────────────────────────────────────────</span>
+  ADVERSE EVENTS: persistent nausea and rapid weight loss,
+                  hospitalized participant
+  NEXT ACTION:    submit dose-adjustment protocol amendment
+
+<span class="c">──────────────────────────────────────────────</span>
+  단계        제공자                        상태
+  수집        direct (fallback)             폴백
+  판단        Qwen Cloud                 <span class="g">실행</span>
+  실행        Daytona                    <span class="g">실행</span>
+  반출금지    Nosana                     <span class="g">실행</span>
+
+  실제 호출된 스폰서 플랫폼: <span class="g">3개</span>
+<span class="c">──────────────────────────────────────────────</span></div>
+<div class="scroll">
+    <ul>
+      <li>수집 단계가 임상시험 레코드를 하나의 스키마로 정규화</li>
+      <li>모델이 집계와 순위 분석 코드를 직접 작성</li>
+      <li>그 코드가 샌드박스에서 실행되어 단계별 분포와 스폰서 순위 출력</li>
+      <li>민감 메모 요약은 자체 GPU 경로로만 처리</li>
+    </ul>
+  </div>
+  <p class="lead">
+    실행 끝에 각 단계가 실제 플랫폼이었는지 폴백이었는지 표로 표시.
+    
+  </p>
+</section>
+
+<!-- 5 · 왜 넷 다 필요한가 -->
+<section>
+  <span class="num">05 / 08</span>
+  <p class="kicker">설계 근거</p>
+  <h2>왜 네 개가 모두 필요한가</h2>
+  <p class="quote">
+    쓸 GPU는 없고, 사내 임상 문서는 밖으로 내보낼 수 없음.
+    제약 현장에서 흔한 두 조건이고, 그 교집합을 Nosana가 메움.
+  </p>
+    <svg class="viz" viewBox="0 0 900 168" role="img" aria-label="민감도에 따라 갈라지는 두 경로">
+    <rect x="6" y="10" width="884" height="66" rx="12" fill="rgba(91,141,239,.08)" stroke="#5b8def" stroke-opacity=".5"/>
+    <text x="24" y="34" fill="#5b8def" font-size="12.5" font-weight="700">공개 데이터</text>
+    <text x="24" y="56" fill="#93a4b1" font-size="12">임상시험 등록, 규제 공시, 뉴스</text>
+    <text x="876" y="48" fill="#5b8def" font-size="12" text-anchor="end" font-weight="600">상용 API 사용</text>
+    <rect x="6" y="90" width="884" height="66" rx="12" fill="rgba(240,119,108,.09)" stroke="#f0776c" stroke-opacity=".6" stroke-dasharray="6 4"/>
+    <text x="24" y="114" fill="#f0776c" font-size="12.5" font-weight="700">반출 금지 데이터</text>
+    <text x="24" y="136" fill="#93a4b1" font-size="12">사내 임상 문서, 피험자 관련 텍스트</text>
+    <text x="876" y="128" fill="#f0776c" font-size="12" text-anchor="end" font-weight="600">자체 GPU 전용, 폴백 없음</text>
+  </svg>
+
+  <ul>
+    <li>수집을 빼면 데이터가 막히고, 판단을 빼면 사람이 코드를 씀</li>
+    <li>실행을 빼면 모델이 쓴 코드를 그대로 신뢰하게 됨</li>
+    <li>반출 금지 경로를 빼면 규제 산업에서는 도입 자체가 불가능</li>
+    <li>이 경로에만 폴백이 없음. 쓸 수 없으면 기능을 포기함. 데이터가 새는 것보다 나음</li>
+  </ul>
+</section>
+
+<!-- 6 · 완성도 -->
+<section>
+  <span class="num">06 / 08</span>
+  <p class="kicker">완성도</p>
+  <h2>한 시간 안에도 규율은 지켰음</h2>
+  <div class="rigor"><div class="rig" style="--c:#4fd1a5"><b>14개</b><span>자동 테스트</span><i>키가 하나도 없어도 완주하는지 포함</i></div><div class="rig" style="--c:#5b8def"><b>4/4</b><span>완료 게이트 통과</span><i>완주, 실호출, 회귀, 비밀 노출 검사</i></div><div class="rig" style="--c:#a97bf0"><b>3/4</b><span>실제 호출된 플랫폼</span><i>폴백은 폴백이라 화면에 표시</i></div><div class="rig" style="--c:#f0776c"><b>0개</b><span>반출 금지 경로의 폴백</span><i>쓸 수 없으면 기능을 포기함</i></div></div>
+  <p class="lead">만든 쪽과 검수하는 쪽을 나눠, 검수 에이전트가 직접 실행해 판정했음.
+  코드를 읽고 될 것 같다고 넘기지 않음.</p>
+</section>
+
+<!-- 7 · 다음 -->
+<section>
+  <span class="num">07 / 08</span>
+  <p class="kicker">다음 단계</p>
+  <h2>매일 돌아가는 감시로</h2>
+  <ul>
+    <li>주기 실행과 변화분만 보고하는 알림</li>
+    <li>PubMed, FDA 공시로 수집 소스 확장</li>
+    <li>사내 문서 연동은 반출 금지 경로에서만</li>
+  </ul>
+  <p class="lead">
+    소스를 늘릴 때 <code>Collector</code> 하나만 구현하면 되도록 설계함.
+  </p>
+</section>
+
+
+
+<!-- 7 -->
+<section class="end">
+  <span class="num">08 / 08</span>
+  <p class="kicker">PharmaSignal</p>
+  <h1>데이터를 못 내보낸다면, 에이전트를 그리로 보냄</h1>
+  <p class="sub">규제가 막는 것은 데이터의 이동이지 분석 자체가 아님. 경로를 나누면 둘 다 가능함.</p>
+  <p class="thanks">감사합니다</p>
+  <div class="logos">
+    <span style="--c:#5b8def"><b>Bright Data</b> 수집</span>
+    <span style="--c:#a97bf0"><b>Qwen Cloud</b> 판단</span>
+    <span style="--c:#4fd1a5"><b>Daytona</b> 격리 실행</span>
+    <span style="--c:#f0776c"><b>Nosana</b> 반출 금지</span>
+  </div>
+</section>
+
+<a class="lang" href="pharmasignal-en.html">EN</a>
+<div class="navbar" aria-hidden="true"><div class="navfill" id="navfill"></div></div>
+<div class="hint" id="hint">click / → / space</div>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('section'));
+  var i = 0, fill = document.getElementById('navfill'), hint = document.getElementById('hint');
+
+  function paint(){
+    fill.style.width = ((i+1)/slides.length*100) + '%';
+  }
+  function go(n){
+    i = Math.max(0, Math.min(slides.length-1, n));
+    slides[i].scrollIntoView({behavior:'smooth'});
+    paint();
+  }
+  // 스크롤로 넘긴 경우에도 현재 장을 따라간다
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){ i = slides.indexOf(e.target); paint(); }
+    });
+  }, {threshold:0.5});
+  slides.forEach(function(s){ io.observe(s); });
+
+  document.addEventListener('click', function(e){
+    if (e.target.closest('a,code,.scroll')) return;   // 링크·코드·가로스크롤 영역은 제외
+    go(e.clientX < window.innerWidth*0.25 ? i-1 : i+1); // 왼쪽 25%는 이전
+  });
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if (k==='ArrowRight'||k==='ArrowDown'||k===' '||k==='PageDown'){ e.preventDefault(); go(i+1); }
+    else if (k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'){ e.preventDefault(); go(i-1); }
+    else if (k==='Home'){ e.preventDefault(); go(0); }
+    else if (k==='End'){ e.preventDefault(); go(slides.length-1); }
+  });
+  setTimeout(function(){ hint.style.opacity = 0; }, 4000);
+  paint();
+})();
+</script>
+
+</body>
+</html>
