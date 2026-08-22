@@ -1,14 +1,24 @@
 ---
 name: hackathon-outcome
-description: Agent Forge Seoul 해커톤 제출 결과와 플랫폼별 최종 상태
+description: Agent Forge Seoul 해커톤 결과(Top 6 탈락)와 다음에 다르게 할 것
 metadata:
   type: project
 ---
 
-2026-08-22 Agent Forge Seoul 해커톤에 PharmaSignal로 제출했다. 제출자는 Ka-Kyung Kim, 슬라이드 `deck/pharmasignal-en.html` 한 파일(폼이 1개만 허용). GitHub 링크와 영상은 비웠다.
+2026-08-22 Agent Forge Seoul 해커톤에 PharmaSignal로 제출했고 **Top 6에 들지 못해 발표하지 못했다.** 제출자 Ka-Kyung Kim, 슬라이드 `deck/pharmasignal-en.html` 한 파일(폼이 1개만 허용). 저장소는 https://github.com/kakyungkim/pharmasignal 로 공개했다.
 
-스폰서 플랫폼 4개 중 3개가 실호출로 연동됐다. Qwen Cloud(qwen3.8-max), Daytona(원격 샌드박스 python 3.14.4, 로컬 3.12.8과 달라 원격 실행 확인), Nosana(DeepSeek-R1-Distill-Qwen-1.5B). Bright Data만 미완인데, 크레딧은 받았으나 계정에 Web Unlocker 제품이 열려 있지 않았고 프록시 zone 생성이 카드 등록을 요구해 마감 안에 못 끝냈다. 프록시 경유 수집기(`BrightDataProxyCollector`)는 구현해 뒀고 자격 증명만 넣으면 동작한다.
+기술적으로는 4개 중 3개를 실호출로 연동했다. Qwen Cloud(qwen3.8-max), Daytona(원격 샌드박스 python 3.14.4로 로컬 3.12.8과 달라 원격 실행 확인), Nosana(DeepSeek-R1-Distill-Qwen-1.5B). Bright Data만 미완인데, 크레딧은 받았으나 계정에 Web Unlocker가 없었고 프록시 zone 생성이 카드 등록을 요구해 포기했다.
 
-**Why:** 플랫폼별 크레딧 수령 방식이 제각각이라 시간을 크게 잡아먹었다. 가입, 크레딧 신청, 키 발급이 각각 다른 단계였고 하나라도 건너뛰면 인증은 되는데 호출이 막혔다. Qwen의 `AccessDenied.Unpurchased`가 대표 사례로, 콘솔에서 활성화 버튼을 찾는 게 아니라 별도 설문 폼을 내야 크레딧이 붙는 구조였다.
+**Why (탈락 요인 추정, 확인된 심사평은 없음):**
+- **1차 심사가 제출 파일만 보고 이뤄졌을 가능성이 높다.** 라이브 데모와 도메인 설명이 발표에서만 살아나는 구조였는데, 그 발표 기회를 얻는 관문이 정적 파일 한 개였다. 강점을 보여줄 자리에 도달하지 못했다.
+- **주제가 심사위원의 배경 지식을 요구했다.** 제약 규제와 데이터 반출 제약은 아는 사람에게는 강력하지만, 모르는 사람에게는 "임상시험 검색해서 센 것"으로 읽힌다. 도메인 깊이가 평가자에게 전달되려면 설명 시간이 필요한데 그 시간이 없었다.
+- **스폰서 활용도가 3/4였다.** 심사 항목에 명시된 기준에서 만점을 놓쳤다.
+- 영상 링크가 없었다. 정적 슬라이드만으로 경쟁했다.
 
-**How to apply:** 다음 스폰서 해커톤에서는 착수 직후 네 플랫폼의 크레딧 신청을 먼저 다 제출하고, 신청과 반영 사이 대기 시간을 다른 작업으로 덮는다. 카드 등록을 요구하는 플랫폼은 즉시 포기하고 폴백으로 간다. 자세한 절차는 `.claude/skills/hackathon-sprint/SKILL.md`, 행사 안내는 `docs/05-event-logistics.md`, 발표 대본은 `docs/06-pitch-script.md`에 있다. 관련 배경은 [[event-constraints]]와 [[local-gpu-none]] 참조.
+**How to apply (다음 해커톤):**
+1. **1차 관문의 형식을 먼저 확인한다.** 제출물만으로 거르는지, 전원 발표인지에 따라 투자처가 완전히 달라진다. 제출물 심사라면 **짧은 데모 영상**이 슬라이드보다 압도적으로 유리하다. 화면 녹화 2분이면 라이브 데모의 설득력을 그대로 옮길 수 있었다.
+2. **도메인 깊이는 양날이다.** 심사위원이 도메인 밖 사람일 가능성이 높으면, 첫 화면에서 "이게 왜 어려운 문제인지"를 도메인 지식 없이도 알게 만들어야 한다. 두 번째 질문에서 강한 주제라도 첫인상에서 걸러지면 소용없다.
+3. **스폰서 항목이 명시된 대회에서는 4/4를 우선한다.** 카드 등록을 요구하는 플랫폼을 만나면 우회 경로를 더 빨리 탐색하거나(다른 제품군, 부스 문의), 착수 시점에 네 곳의 크레딧 신청을 동시에 넣어 병목을 앞당긴다.
+4. 만든 것 자체는 남았다. 저장소, 문서, 하네스는 재사용 가능하고 블로그 소재로도 쓸 수 있다.
+
+관련 배경은 [[event-constraints]], [[topic-rationale]], [[local-gpu-none]]. 절차는 `.claude/skills/hackathon-sprint/SKILL.md`에 있고, 위 1~3번을 그 스킬에 반영해 두었다.
