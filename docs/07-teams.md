@@ -90,7 +90,9 @@ campaigns are outside this MVP." 배송형 체험단을 뺀다고 명시했다. 
 
 ## 2팀 · Does it actually run?
 
-**결과 페이지:** pineapplesour.github.io/does-it-actually-run/
+**결과 페이지:** pineapplesour.github.io/does-it-actually-run/ (접속 가능)
+**저장소:** github.com/pineapplesour/does-it-actually-run (공개)
+**생성 05:30 UTC(14:30 KST), 최종 push 06:53 UTC(15:53 KST)**
 
 ### 확인한 내용
 
@@ -112,7 +114,45 @@ GitHub 저장소가 주장하는 대로 실제로 도는지 검증한다. 화면
 
 **안 돌린 것을 안 돌렸다고 화면에 썼다.** `Not exercised`와 `completeFourRouteEvidence: false`가 그대로 노출됐다. 우리도 같은 규율을 지켰다. **정직함은 우리와 이 팀의 공통점이지 차이가 아니었다.**
 
-**Qwen Cloud가 화면에 없었다.** 촬영된 범위에서는 Bright Data와 Nosana만 확인된다. 스폰서 개수가 점수인 1차 관문에서 이 팀이 어떻게 통과했는지는 사진만으로 판단할 수 없다.
+### 공개 저장소에서 확인한 것
+
+발표 화면에는 Qwen Cloud가 안 보였지만 **저장소 README에는 네 플랫폼이 모두 표로 정리돼 있다.**
+그리고 표에 **"필수성"** 열이 따로 있다.
+
+| 스폰서 | 사용 제품 | 위치 | 필수성 |
+|---|---|---|---|
+| Bright Data | SERP API + **Scraping Browser (CDP)** | `src/brightdata.py` | 로컬 크롬은 GitHub에 막힌다. 원격 브라우저 N개 병렬이 곧 교차검증 |
+| Qwen Cloud | Chat Completions (OpenAI 호환) | `src/qwen.py` | README 해석과 에러 되먹임 수정 |
+| Daytona | Sandbox 생성 / exec / 삭제 | `src/daytona_runner.py` | **없으면 프로젝트가 성립하지 않는다.** 실제 실행이 유일한 진실 |
+| Nosana | Markets / Jobs / API Keys | `src/nosana.py` | GPU 워커 선택 및 오프로드 |
+
+README에 **"Bright Data는 제품 2종을 쓴다 (SERP + Browser API)"** 라고 따로 못 박아 두었다.
+
+**설계 원칙 한 줄이 날카롭다.**
+
+> 검증이 해결보다 싸고 게이트가 객관적인 곳에서만 분해한다.
+
+그리고 판정 기준을 코드로 고정했다. `exit_code == 0 && stdout contains REPRO_OK` 이것만이 PASS이고,
+신뢰도도 모델 자기신고가 아니라 실제 통과한 샌드박스 비율이다. "LLM 여러 개를 투표시키는 접근은
+상관된 오류를 못 고친다"고 이유까지 적었다.
+
+**저장소에 `video/demo.mp4`가 있다.** 화면 녹화 스크립트(`record.mjs`)까지 함께 두었다.
+폴더 구조는 `deck/ docs/ evidence/ skills/ src/`로 우리와 거의 같다.
+
+### 분석 보강
+
+**우리가 못 한 것 두 가지를 이 팀은 했다.**
+
+1. **데모 영상을 만들었다.** 우리는 정적 슬라이드만 냈다. 제출물 심사가 1차 관문이었으니
+   이 차이가 컸을 수 있다.
+2. **한 스폰서에서 제품을 두 개 썼다.** SERP API와 Scraping Browser를 둘 다 붙이고 README에
+   명시했다. "More sponsor APIs integrated = higher score"라는 채점 방식에 정확히 대응한 셈이다.
+   우리는 Bright Data 제품 하나(Web Unlocker)에 막혀 아예 0이 됐는데, **제품이 여러 개라는 것을
+   알았다면 SERP API로 우회할 수 있었다.**
+
+**필수성을 플랫폼마다 한 문장으로 적었다.** "없으면 프로젝트가 성립하지 않는다" 같은 문장은
+평가자가 스폰서 통합 점수를 매길 때 그대로 근거가 된다. 우리도 같은 논리를 갖고 있었지만
+발표 서사로만 풀었고 표로 만들지 않았다.
 
 ---
 
