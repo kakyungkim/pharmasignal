@@ -91,13 +91,22 @@
   .viz{width:100%;height:auto;display:block;max-width:900px}
   .viz text{font-family:Pretendard,-apple-system,sans-serif}
   .cap{color:var(--muted);font-size:clamp(.72rem,1.3vw,.86rem)}
+  .rigor{display:grid;gap:clamp(10px,1.4vw,18px);
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .rig{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:clamp(14px,1.8vw,22px);border-left:3px solid var(--c,var(--accent))}
+  .rig b{display:block;font-size:clamp(1.4rem,3.4vw,2.1rem);font-weight:800;
+    color:var(--c,var(--accent));line-height:1.15}
+  .rig span{display:block;color:var(--fg);font-size:clamp(.84rem,1.5vw,1rem);margin-top:.3em}
+  .rig i{display:block;color:var(--muted);font-size:clamp(.74rem,1.25vw,.86rem);
+    font-style:normal;margin-top:.25em}
 </style>
 </head>
 <body>
 
 <!-- 1 · 표지 + 문제 -->
 <section>
-  <span class="num">01 / 07</span>
+  <span class="num">01 / 08</span>
   <p class="kicker">Agent Forge Seoul 2026</p>
   <h1>PharmaSignal</h1>
   <p class="lead">신약 안전성 신호를 훑고, 근거까지 스스로 만드는 에이전트</p>
@@ -131,7 +140,7 @@
 
 <!-- 2 · 해법 -->
 <section>
-  <span class="num">02 / 07</span>
+  <span class="num">02 / 08</span>
   <p class="kicker">해법</p>
   <h2>계열을 나란히 놓으면 지형이 보임</h2>
   <p class="lead">
@@ -148,7 +157,7 @@
 
 <!-- 3 · 아키텍처 -->
 <section>
-  <span class="num">03 / 07</span>
+  <span class="num">03 / 08</span>
   <p class="kicker">아키텍처</p>
   <h2>네 플랫폼, 네 가지 역할</h2>
   <div class="grid4">
@@ -214,7 +223,7 @@
 
 <!-- 4 · 데모 -->
 <section>
-  <span class="num">04 / 07</span>
+  <span class="num">04 / 08</span>
   <p class="kicker">데모</p>
   <h2>실제로 돌아가는 파이프라인</h2>
     <div class="term"><div class="termbar"><i></i><i></i><i></i></div><span class="c">$ pharmasignal run "antibody-drug conjugate"</span>
@@ -269,7 +278,7 @@
 
 <!-- 5 · 왜 넷 다 필요한가 -->
 <section>
-  <span class="num">05 / 07</span>
+  <span class="num">05 / 08</span>
   <p class="kicker">설계 근거</p>
   <h2>왜 네 개가 모두 필요한가</h2>
   <p class="quote">
@@ -295,9 +304,19 @@
   </ul>
 </section>
 
-<!-- 6 · 다음 -->
+<!-- 6 · 완성도 -->
 <section>
-  <span class="num">06 / 07</span>
+  <span class="num">06 / 08</span>
+  <p class="kicker">완성도</p>
+  <h2>한 시간 안에도 규율은 지켰음</h2>
+  <div class="rigor"><div class="rig" style="--c:#4fd1a5"><b>14개</b><span>자동 테스트</span><i>키가 하나도 없어도 완주하는지 포함</i></div><div class="rig" style="--c:#5b8def"><b>4/4</b><span>완료 게이트 통과</span><i>완주, 실호출, 회귀, 비밀 노출 검사</i></div><div class="rig" style="--c:#a97bf0"><b>3/4</b><span>실제 호출된 플랫폼</span><i>폴백은 폴백이라 화면에 표시</i></div><div class="rig" style="--c:#f0776c"><b>0개</b><span>반출 금지 경로의 폴백</span><i>쓸 수 없으면 기능을 포기함</i></div></div>
+  <p class="lead">만든 쪽과 검수하는 쪽을 나눠, 검수 에이전트가 직접 실행해 판정했음.
+  코드를 읽고 될 것 같다고 넘기지 않음.</p>
+</section>
+
+<!-- 7 · 다음 -->
+<section>
+  <span class="num">07 / 08</span>
   <p class="kicker">다음 단계</p>
   <h2>매일 돌아가는 감시로</h2>
   <ul>
@@ -314,7 +333,7 @@
 
 <!-- 7 -->
 <section class="end">
-  <span class="num">07 / 07</span>
+  <span class="num">08 / 08</span>
   <p class="kicker">PharmaSignal</p>
   <h1>데이터를 못 내보낸다면, 에이전트를 그리로 보냄</h1>
   <p class="sub">규제가 막는 것은 데이터의 이동이지 분석 자체가 아님. 경로를 나누면 둘 다 가능함.</p>

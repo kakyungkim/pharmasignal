@@ -91,13 +91,22 @@
   .viz{width:100%;height:auto;display:block;max-width:900px}
   .viz text{font-family:Pretendard,-apple-system,sans-serif}
   .cap{color:var(--muted);font-size:clamp(.72rem,1.3vw,.86rem)}
+  .rigor{display:grid;gap:clamp(10px,1.4vw,18px);
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .rig{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:clamp(14px,1.8vw,22px);border-left:3px solid var(--c,var(--accent))}
+  .rig b{display:block;font-size:clamp(1.4rem,3.4vw,2.1rem);font-weight:800;
+    color:var(--c,var(--accent));line-height:1.15}
+  .rig span{display:block;color:var(--fg);font-size:clamp(.84rem,1.5vw,1rem);margin-top:.3em}
+  .rig i{display:block;color:var(--muted);font-size:clamp(.74rem,1.25vw,.86rem);
+    font-style:normal;margin-top:.25em}
 </style>
 </head>
 <body>
 
 <!-- 1 -->
 <section>
-  <span class="num">01 / 07</span>
+  <span class="num">01 / 08</span>
   <p class="kicker">Agent Forge Seoul 2026</p>
   <h1>PharmaSignal</h1>
   <p class="lead">An agent that scans drug safety signals and builds its own evidence.</p>
@@ -131,7 +140,7 @@
 
 <!-- 2 -->
 <section>
-  <span class="num">02 / 07</span>
+  <span class="num">02 / 08</span>
   <p class="kicker">What it does</p>
   <h2>Put the modalities side by side</h2>
   <p class="lead">
@@ -149,7 +158,7 @@
 
 <!-- 3 -->
 <section>
-  <span class="num">03 / 07</span>
+  <span class="num">03 / 08</span>
   <p class="kicker">Architecture</p>
   <h2>Four platforms, four distinct jobs</h2>
   <div class="grid4">
@@ -215,7 +224,7 @@
 
 <!-- 4 -->
 <section>
-  <span class="num">04 / 07</span>
+  <span class="num">04 / 08</span>
   <p class="kicker">Demo</p>
   <h2>A pipeline that actually runs</h2>
     <div class="term"><div class="termbar"><i></i><i></i><i></i></div><span class="c">$ pharmasignal run "antibody-drug conjugate"</span>
@@ -270,7 +279,7 @@
 
 <!-- 5 -->
 <section>
-  <span class="num">05 / 07</span>
+  <span class="num">05 / 08</span>
   <p class="kicker">Why all four</p>
   <h2>Each one is load-bearing</h2>
   <p class="quote">
@@ -299,7 +308,16 @@
 
 <!-- 6 -->
 <section>
-  <span class="num">06 / 07</span>
+  <span class="num">06 / 08</span>
+  <p class="kicker">Rigor</p>
+  <h2>Discipline held, even in one hour</h2>
+  <div class="rigor"><div class="rig" style="--c:#4fd1a5"><b>14</b><span>automated tests</span><i>including a full run with zero API keys</i></div><div class="rig" style="--c:#5b8def"><b>4/4</b><span>completion gates passed</span><i>run, live calls, regression, secret scan</i></div><div class="rig" style="--c:#a97bf0"><b>3/4</b><span>platforms actually called</span><i>fallbacks are labeled as fallbacks</i></div><div class="rig" style="--c:#f0776c"><b>0</b><span>fallbacks on the restricted path</span><i>unavailable means we drop the feature</i></div></div>
+  <p class="lead">A separate verifier agent ran everything and judged it. Nothing passed on "looks right" alone.</p>
+</section>
+
+<!-- 7 -->
+<section>
+  <span class="num">07 / 08</span>
   <p class="kicker">Next</p>
   <h2>From one query to daily watch</h2>
   <ul>
@@ -316,7 +334,7 @@
 
 <!-- 7 -->
 <section class="end">
-  <span class="num">07 / 07</span>
+  <span class="num">08 / 08</span>
   <p class="kicker">PharmaSignal</p>
   <h1>If the data can't leave, send the agent to it</h1>
   <p class="sub">Regulation blocks the movement of data, not the analysis. Split the path and you get both.</p>
