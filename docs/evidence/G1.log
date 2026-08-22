@@ -1,0 +1,58 @@
+
+  PharmaSignal  ·  주제: GLP-1
+  ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
+
+──────────────────────────────────────────────────────────────────
+[1/4] Bright Data  ·  공개 임상시험 데이터 수집
+──────────────────────────────────────────────────────────────────
+  경로: direct (fallback)
+  임상시험 15건 수집
+    - [PHASE3] Comparison of NN1250 Versus Insulin Glargine in Subjects With Type 2 Diabetes
+    - [PHASE1] Probiotics as a Novel Approach to Modulate Gut Hormone Secretion and Risk Factor
+    - [NA] Proactive Population Health Management of Cardiovascular Disease in Primary Care
+
+──────────────────────────────────────────────────────────────────
+[2/4] Qwen Cloud  ·  분석 코드 생성
+──────────────────────────────────────────────────────────────────
+  생성된 분석 코드:
+    | from collections import Counter
+    | 
+    | 
+    | def clean(value, default="UNKNOWN"):
+    |     if value is None:
+    |         return default
+    |     value = str(value).strip()
+    |     return value or default
+    | 
+    | 
+    | ... (총 37줄)
+
+──────────────────────────────────────────────────────────────────
+[3/4] Daytona  ·  생성 코드를 격리 샌드박스에서 실행
+──────────────────────────────────────────────────────────────────
+
+  GLP-1 landscape report
+  Total trials: 15
+  Trials per phase: NA: 5; PHASE1: 4; PHASE3: 3; PHASE2: 2; PHASE4: 1
+  Trials per status: COMPLETED: 9; RECRUITING: 4; ENROLLING_BY_INVITATION: 1; UNKNOWN: 1
+  Top 5 sponsors: Eli Lilly and Company: 2; Novo Nordisk A/S: 1; German Diabetes Center: 1; Leiden University Medical Center: 1; King's College London: 1
+
+──────────────────────────────────────────────────────────────────
+[4/4] Nosana  ·  반출 금지 텍스트를 자체 GPU에서 추론
+──────────────────────────────────────────────────────────────────
+
+  ADVERSE EVENTS: Persistent nausea and rapid weight loss after week 6 of dosing; suspected cholecystitis; causality assessment is ongoing.
+  SERIOUS: Persistent nausea and rapid weight loss after week 6 of dosing.
+  NEXT ACTION: A dose-adjustment protocol amendment will be submitted to the safety committee.
+
+──────────────────────────────────────────────────────────────────
+  단계        제공자              상태
+  ----------------------------------------------
+  수집          direct (fallback)           폴백
+  판단          Qwen Cloud                  실행
+  실행          Daytona                     실행
+  주권          Nosana                      실행
+
+  실제 호출된 스폰서 플랫폼: 3개 — Qwen Cloud, Daytona, Nosana
+──────────────────────────────────────────────────────────────────
+

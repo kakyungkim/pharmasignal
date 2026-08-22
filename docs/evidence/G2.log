@@ -1,0 +1,27 @@
+
+  PharmaSignal
+  ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
+
+=== brightdata ===
+  [[91mFAIL[0m] brightdata → RuntimeError('Bright Data 자격 미설정 — API 키 또는 프록시 계정 필요')
+
+=== qwen ===
+  모델 qwen3.8-max · 응답 ONLINE
+  [[92mPASS[0m] qwen
+
+=== daytona ===
+  sandbox python 3.14.4
+  [[92mPASS[0m] daytona
+
+=== nosana ===
+  모델 DeepSeek-R1-Distill-Qwen-1.5B · 응답 ONLINE
+  [[92mPASS[0m] nosana
+
+==============================================
+  FAIL  brightdata
+  PASS  qwen
+  PASS  daytona
+  PASS  nosana
+
+  3/4 통과
+
