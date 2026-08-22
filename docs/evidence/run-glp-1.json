@@ -1,0 +1,43 @@
+{
+  "topic": "GLP-1",
+  "recorded_at": "2026-08-22T23:13:43+0900",
+  "elapsed_sec": 0.0,
+  "live_providers": [],
+  "live_count": 0,
+  "stages": [
+    {
+      "stage": "수집",
+      "provider": "stub (fallback)",
+      "ok": true,
+      "degraded": true,
+      "detail": "3건"
+    },
+    {
+      "stage": "판단",
+      "provider": "static (fallback)",
+      "ok": true,
+      "degraded": true,
+      "detail": "8줄"
+    },
+    {
+      "stage": "실행",
+      "provider": "local exec (fallback)",
+      "ok": true,
+      "degraded": true,
+      "detail": ""
+    },
+    {
+      "stage": "반출금지",
+      "provider": "Nosana",
+      "ok": false,
+      "degraded": false,
+      "detail": "미설정"
+    }
+  ],
+  "crosscheck": {
+    "checked": 5,
+    "agreed": 5,
+    "ok": true,
+    "mismatches": []
+  }
+}

@@ -24,7 +24,7 @@ cd code && PYTHONPATH=src python -m pharmasignal.cli run GLP-1 --limit 15
 | 실행 단계 출력 | 비어 있지 않음 |
 | 요약표 | 4단계 모두 표시 |
 
-**현재: PASS** — 키 0개 상태에서 임상시험 15건 수집, 단계·상태·스폰서 분포 출력 확인.
+**현재: PASS.** 키 0개 상태에서 임상시험 15건을 수집했고 단계, 상태, 스폰서 분포가 출력됐다.
 
 ## G2 · 플랫폼 실호출 (핵심)
 
@@ -34,10 +34,10 @@ cd code && PYTHONPATH=src python -m pharmasignal.cli smoke
 
 | 플랫폼 | 최소 확인 | 현재 |
 |---|---|---|
-| Bright Data | 임상시험 5건 이상 수집 | **미해결** — 계정에 Web Unlocker가 없어 프록시 경로로 전환 중 |
-| Qwen Cloud | 모델 응답 수신 | **PASS** — qwen3.8-max 응답. 바우처 크레딧 반영 후 해결 |
-| Daytona | 샌드박스 python 버전 출력 | **PASS** — sandbox python 3.14.4 (로컬 3.12.8과 달라 원격 실행 확인) |
-| Nosana | 엔드포인트 모델 응답 | **PASS** — DeepSeek-R1-Distill-Qwen-1.5B 서빙 중 |
+| Bright Data | 임상시험 5건 이상 수집 | **미해결.** 계정에 Web Unlocker가 없어 프록시 경로로 전환 중 |
+| Qwen Cloud | 모델 응답 수신 | **PASS**. qwen3.8-max 응답. 바우처 크레딧 반영 후 해결 |
+| Daytona | 샌드박스 python 버전 출력 | **PASS**. sandbox python 3.14.4 (로컬 3.12.8과 달라 원격 실행 확인) |
+| Nosana | 엔드포인트 모델 응답 | **PASS**. DeepSeek-R1-Distill-Qwen-1.5B 서빙 중 |
 
 목표는 4개 중 3개 이상. 각 통과마다 실제 응답 내용이 출력되어야 하고, `docs/evidence/`에 저장한다.
 

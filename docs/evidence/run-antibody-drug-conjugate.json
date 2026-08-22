@@ -1,0 +1,47 @@
+{
+  "topic": "antibody-drug conjugate",
+  "recorded_at": "2026-08-22T23:10:55+0900",
+  "elapsed_sec": 96.0,
+  "live_providers": [
+    "Qwen Cloud",
+    "Daytona",
+    "Nosana"
+  ],
+  "live_count": 3,
+  "stages": [
+    {
+      "stage": "수집",
+      "provider": "direct (fallback)",
+      "ok": true,
+      "degraded": true,
+      "detail": "20건"
+    },
+    {
+      "stage": "판단",
+      "provider": "Qwen Cloud",
+      "ok": true,
+      "degraded": false,
+      "detail": "87줄"
+    },
+    {
+      "stage": "실행",
+      "provider": "Daytona",
+      "ok": true,
+      "degraded": false,
+      "detail": ""
+    },
+    {
+      "stage": "반출금지",
+      "provider": "Nosana",
+      "ok": true,
+      "degraded": false,
+      "detail": ""
+    }
+  ],
+  "crosscheck": {
+    "checked": 1,
+    "agreed": 1,
+    "ok": true,
+    "mismatches": []
+  }
+}

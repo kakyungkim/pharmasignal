@@ -13,6 +13,7 @@ from pharmasignal.pipeline import Pipeline
 from pharmasignal.providers import (
     build_collector, build_executor, build_reasoner, build_sovereign,
 )
+from pharmasignal.verify import crosscheck, recompute
 from pharmasignal.providers.reasoners import (
     FALLBACK_ANALYSIS_CODE, _strip_fences, _strip_reasoning,
 )
@@ -91,9 +92,9 @@ class TestReasoningTags:
 class TestReport:
     def test_counts_only_live_providers(self):
         report = RunReport(topic="GLP-1")
-        report.add(StageResult("찾기", "Bright Data", ok=True))
-        report.add(StageResult("읽기", "static (fallback)", ok=True, degraded=True))
-        report.add(StageResult("가두기", "Nosana", ok=False))
+        report.add(StageResult("수집", "Bright Data", ok=True))
+        report.add(StageResult("판단", "static (fallback)", ok=True, degraded=True))
+        report.add(StageResult("반출금지", "Nosana", ok=False))
         assert report.live_providers == ["Bright Data"]
         assert "폴백" in report.summary_table()
 
@@ -111,7 +112,40 @@ class TestPipelineOffline:
         lines: list[str] = []
         report = Pipeline(empty_settings, emit=lines.append).run("GLP-1")
 
-        assert [s.stage for s in report.stages] == ["찾기", "읽기", "따지기", "가두기"]
+        assert [s.stage for s in report.stages] == ["수집", "판단", "실행", "반출금지"]
         assert report.live_providers == []          # 전부 폴백
         assert any("수집 3건" in ln for ln in lines)
         assert any("폴백을 두지 않는 것이 의도된 동작" in ln for ln in lines)
+
+
+class TestCrossCheck:
+    """생성된 집계를 고정 로직으로 다시 따지는 단계."""
+
+    @pytest.fixture
+    def rows(self) -> list[Trial]:
+        return [
+            Trial("N1", "a", "RECRUITING", "PHASE3", "Lilly"),
+            Trial("N2", "b", "RECRUITING", "PHASE1", "Lilly"),
+            Trial("N3", "c", "ACTIVE_NOT_RECRUITING", "PHASE1", "Novo"),
+        ]
+
+    def test_agrees_with_correct_output(self, rows):
+        out = "수집 3건\nRECRUITING: 2\nACTIVE_NOT_RECRUITING: 1\nPHASE1: 2\nPHASE3: 1"
+        c = crosscheck(out, rows)
+        assert c.ok and c.checked >= 4 and not c.mismatches
+
+    def test_catches_a_wrong_number(self, rows):
+        out = "수집 3건\nRECRUITING: 9\nPHASE1: 2\nPHASE3: 1"
+        c = crosscheck(out, rows)
+        assert not c.ok
+        assert any("RECRUITING" in m for m in c.mismatches)
+
+    def test_substring_label_does_not_confuse(self, rows):
+        """RECRUITING이 ACTIVE_NOT_RECRUITING 안에서 잡히면 안 된다."""
+        out = "수집 3건\nACTIVE_NOT_RECRUITING: 1\nRECRUITING: 2"
+        c = crosscheck(out, rows)
+        assert c.ok, c.mismatches
+
+    def test_reports_when_nothing_to_check(self, rows):
+        c = crosscheck("아무 라벨도 없는 출력", rows)
+        assert not c.ok and c.checked == 0 and c.notes

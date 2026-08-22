@@ -3,7 +3,7 @@
   ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
 
 ──────────────────────────────────────────────────────────────────
-[1/4] Bright Data  ·  찾기 · 흩어진 임상시험을 한곳으로
+[1/4] Bright Data  ·  흩어진 임상시험과 규제 공시를 한곳으로
 ──────────────────────────────────────────────────────────────────
   경로: direct (fallback)
   임상시험 15건 수집
@@ -12,63 +12,61 @@
     - [NA] Proactive Population Health Management of Cardiovascular Disease in Primary Care
 
 ──────────────────────────────────────────────────────────────────
-[2/4] Qwen Cloud  ·  읽기 · 문서를 구조로 바꾸고 분석 코드를 쓴다
+[2/4] Qwen Cloud  ·  문서를 구조로 바꾸고 분석 코드를 쓴다
 ──────────────────────────────────────────────────────────────────
   생성된 분석 코드:
     | from collections import Counter
     | 
+    | def clean(value, default="UNKNOWN"):
+    |     value = str(value or "").strip()
+    |     return value if value else default
     | 
-    | def normalize(value, default="UNKNOWN"):
-    |     if value is None:
-    |         return default
-    |     text = " ".join(str(value).split()).upper()
-    |     return text if text else default
+    | total_trials = len(ROWS)
     | 
-    | 
-    | ... (총 48줄)
+    | phase_counts = Counter(clean(row.get("phase")) for row in ROWS)
+    | status_counts = Counter(clean(row.get("status")) for row in ROWS)
+    | ... (총 35줄)
 
 ──────────────────────────────────────────────────────────────────
-[3/4] Daytona  ·  따지기 · 그 코드를 직접 돌려 숫자를 확인
+[3/4] Daytona  ·  그 코드를 격리 샌드박스에서 돌려 숫자를 확인
 ──────────────────────────────────────────────────────────────────
 
-  GLP-1 TRIAL LANDSCAPE
+  GLP-1 Trial Landscape Report
+  ==============================
   Total trials: 15
-  
-  Trials by phase:
-    NA: 5
-    PHASE1: 4
-    PHASE3: 3
-    PHASE2: 2
-    PHASE4: 1
-  
-  Trials by status:
-    COMPLETED: 9
-    RECRUITING: 4
-    ENROLLING_BY_INVITATION: 1
-    UNKNOWN: 1
-  
-  Top 5 sponsors by trial count:
-    Eli Lilly and Company: 2
-    Adrian Vella: 1
-    Azienda Ospedaliero-Universitaria di Parma: 1
-    Future University in Egypt: 1
-    German Diabetes Center: 1
+  Trials per phase: NA: 5, PHASE1: 4, PHASE3: 3, PHASE2: 2, PHASE4: 1
+  Trials per status: COMPLETED: 9, RECRUITING: 4, ENROLLING_BY_INVITATION: 1, UNKNOWN: 1
+  Top 5 sponsors:
+  1. Eli Lilly and Company (2)
+  2. Adrian Vella (1)
+  3. Azienda Ospedaliero-Universitaria di Parma (1)
+  4. Future University in Egypt (1)
+  5. German Diabetes Center (1)
 
 ──────────────────────────────────────────────────────────────────
-[4/4] Nosana  ·  가두기 · 밖으로 못 내보내는 텍스트를 우리 GPU에서
+[대조] 생성된 집계를 고정 로직으로 다시 계산
+──────────────────────────────────────────────────────────────────
+  10/10 일치
+
+──────────────────────────────────────────────────────────────────
+[4/4] Nosana  ·  밖으로 못 내보내는 텍스트는 우리 GPU 안에서만
 ──────────────────────────────────────────────────────────────────
 
-  ADVERSE EVENTS: Persistent nausea and rapid weight loss after week 6 of dosing; hospitalized with suspected cholecystitis; dose-adjustment protocol amendment will be submitted to the safety committee.  
-  SERIOUS: none  
+  ADVERSE EVENTS: three participants developed persistent nausea and rapid weight loss after week 6 of dosing; one participant was hospitalized with suspected cholecystitis; dose-adjustment protocol amendment will be submitted to the safety committee.
+  
+  SERIOUS: one
+  
   NEXT ACTION: dose-adjustment protocol amendment will be submitted to the safety committee.
 
+  실행 원장: AgentForgeAI/docs/evidence/run-glp-1.json
+
 ──────────────────────────────────────────────────────────────────
-  단계        제공자                      상태
-  ----------------------------------------------
-  찾기          direct (fallback)           폴백
-  읽기          Qwen Cloud                  실행
-  따지기         Daytona                     실행
-  가두기         Nosana                      실행
+  단계      제공자                      상태
+  --------------------------------------------
+  수집      direct (fallback)           폴백
+  판단      Qwen Cloud                  실행
+  실행      Daytona                     실행
+  반출금지  Nosana                      실행
 
   실제 호출된 스폰서 플랫폼: 3개 — Qwen Cloud, Daytona, Nosana
 ──────────────────────────────────────────────────────────────────
