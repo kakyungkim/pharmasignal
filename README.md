@@ -117,6 +117,7 @@ AgentForgeAI/
 | [docs/06-pitch-script.md](docs/06-pitch-script.md) | 발표 대본과 예상 질문 |
 | [docs/07-teams.md](docs/07-teams.md) | 발표팀 6곳의 접근과 우리와의 대비 |
 | [docs/08-post-hackathon-upgrades.md](docs/08-post-hackathon-upgrades.md) | **해커톤 이후 무엇을 배워 무엇을 바꿨나** |
+| [docs/09-brightdata-setup.md](docs/09-brightdata-setup.md) | 마지막 플랫폼을 붙여 4/4를 만드는 절차 |
 | [memory/MEMORY.md](memory/MEMORY.md) | 세션 간 이어지는 프로젝트 기억 |
 
 ## 해커톤 이후 (2026-08-22 행사 종료 후 갱신)
