@@ -89,7 +89,7 @@ def big(no: str, title: str, desc: str, c: str, t: str) -> str:
 PIPE_ROW = (card("1 수집", "Bright Data", "흩어진 공시를 한곳으로", BD, TBD)
             + card("2 판단", "Qwen Cloud", "구조로 바꾸고 코드를 쓴다", QW, TQW)
             + card("3 실행", "Daytona", "격리 샌드박스에서 실행", DY, TDY)
-            + card("4 반출 금지", "Nosana", "우리 GPU 안에서만", NO, TNO))
+            + card("4 반출 금지", "Nosana", "상용 제공자에게 보내지 않음", NO, TNO))
 
 MODALITIES = [("GLP-1", 50, WARN), ("펩타이드 치료제", 42, WARN), ("방사성리간드", 23, BD),
               ("siRNA", 22, BD), ("단일클론항체", 21, BD), ("ADC", 16, DY),
@@ -122,7 +122,7 @@ SLIDES: list[tuple[str, str]] = [
       <div class="k">해법</div>
       <h2>민감도에 따라 추론 경로를 나눈다</h2>
       <div class="row">{PIPE_ROW}</div>
-      <div class="note">공개 데이터는 상용 API로, 못 내보내는 것만 우리 GPU 안에서</div></body>'''),
+      <div class="note">공개 데이터는 상용 API로, 반출 금지 텍스트는 지정한 엔드포인트로만</div></body>'''),
 
     ("05", f'''<body>
       <div class="k">1 · 수집</div>
@@ -146,7 +146,7 @@ SLIDES: list[tuple[str, str]] = [
     ("08", f'''<body>
       <div class="k">4 · 반출 금지</div>
       <h2>이 경로에만<br>폴백을 두지 않았다</h2>
-      {big("04", "Nosana", "밖으로 못 내보내는 텍스트는 우리가 띄운 GPU 안에서만 추론한다", NO, TNO)}
+      {big("04", "Nosana", "반출 금지 텍스트를 상용 LLM 제공자에게 보내지 않고 지정한 엔드포인트로만 추론한다", NO, TNO)}
       <div class="term">build_sovereign() → <span class="r">None</span>
 <span class="c">쓸 수 없으면 기능을 포기하고 단계를 건너뛴다</span></div></body>'''),
 
@@ -161,7 +161,7 @@ SLIDES: list[tuple[str, str]] = [
       <h2>생성된 집계를<br>고정 로직으로 다시 따진다</h2>
       <div class="term"><span class="c">[대조] 생성된 집계를 고정 로직으로 다시 계산</span>
   <span class="g">11/11 일치</span></div>
-      <div class="lead">모델이 낸 숫자가 맞는지 판정을 모델에게 맡기지 않는다.
+      <div class="lead">확립된 기법이다. 모델이 낸 숫자의 판정을 모델에게 맡기지 않는다.
       같은 집계를 코드로 다시 구해 대조한다.</div></body>'''),
 
     ("11", f'''<body>

@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -26,12 +27,22 @@ def _slug(text: str) -> str:
     return "".join(keep).strip("-")[:40] or "run"
 
 
-def write(report: RunReport, elapsed: float,
-          crosscheck: Any = None, out_dir: Path | None = None) -> Path:
-    """실행 결과를 JSON 한 건으로 남기고 경로를 돌려준다.
+def digest(text: str) -> str:
+    """재현 확인용 짧은 해시. 원문을 남기지 않고 같은지만 견줄 수 있게 한다."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
-    payload는 크고 재현 가능하므로 넣지 않는다. 어느 단계가 어느 제공자로
-    돌았고 폴백이었는지, 그리고 대조 결과가 어땠는지만 남긴다.
+
+def write(report: RunReport, elapsed: float, crosscheck: Any = None,
+          out_dir: Path | None = None, fingerprints: dict[str, str] | None = None) -> Path:
+    """실행 한 건을 원장에 **덧붙인다**.
+
+    [해커톤 이후 업데이트 2026-08-23] 이전에는 `run-<주제>.json`으로 덮어써서
+    같은 주제로 다시 돌리면 앞선 기록이 사라졌다. "여러 번 돌린 결과를 견주겠다"는
+    원래 목적과 코드가 어긋나 있었다. 이제 JSON Lines로 덧붙이고, 입력과 프롬프트와
+    모델과 생성 코드의 해시를 함께 남겨 재실행이 같았는지 확인할 수 있게 한다.
+
+    원문은 남기지 않는다. 해시만으로 같고 다름을 견줄 수 있고, 민감한 내용이
+    원장에 새는 것도 막는다.
     """
     out_dir = out_dir or EVIDENCE_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -52,10 +63,22 @@ def write(report: RunReport, elapsed: float,
         record["crosscheck"] = {
             "checked": crosscheck.checked,
             "agreed": crosscheck.agreed,
+            "coverage": crosscheck.coverage,
             "ok": crosscheck.ok,
             "mismatches": crosscheck.mismatches,
         }
+    if fingerprints:
+        record["fingerprints"] = fingerprints
 
-    path = out_dir / f"run-{_slug(report.topic)}.json"
-    path.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n")
+    path = out_dir / f"runs-{_slug(report.topic)}.jsonl"
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record, ensure_ascii=False) + "\n")
     return path
+
+
+def read_runs(topic: str, out_dir: Path | None = None) -> list[dict[str, Any]]:
+    """한 주제의 실행 기록을 시간순으로 읽는다. 여러 번 돌린 결과를 견줄 때 쓴다."""
+    path = (out_dir or EVIDENCE_DIR) / f"runs-{_slug(topic)}.jsonl"
+    if not path.exists():
+        return []
+    return [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]

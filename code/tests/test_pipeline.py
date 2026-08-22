@@ -201,3 +201,28 @@ class TestSettingsParsing:
         assert Settings._clean("   # 비워 둘 것") == ""
         assert Settings._clean("serp_api1  # 제품 2") == "serp_api1"
         assert Settings._clean("  plain  ") == "plain"
+
+
+class TestGuard:
+    """상용 경로로 나가는 페이로드를 검사하는 관문."""
+
+    def test_passes_public_text(self):
+        from pharmasignal.guard import inspect
+        assert not inspect("GLP-1 임상시험 20건의 단계별 분포").restricted
+
+    def test_catches_restriction_marker(self):
+        from pharmasignal.guard import inspect
+        v = inspect("[내부 문서 · 외부 반출 금지] 피험자에서 오심 관찰")
+        assert v.restricted and v.reasons
+
+    def test_catches_identifiers(self):
+        from pharmasignal.guard import inspect
+        for text in ["연락처 010-1234-5678", "환자 kim@example.com",
+                     "Subject 00123 withdrew", "MRN 4455667"]:
+            assert inspect(text).restricted, text
+
+    def test_commercial_path_refuses_and_does_not_fall_back(self):
+        """막힌 뒤 다른 모델로 넘기지 않는 것이 이 설계의 핵심이다."""
+        from pharmasignal.guard import assert_public, RestrictedContent
+        with pytest.raises(RestrictedContent):
+            assert_public("[대외비] 내부 안전성 메모", "Qwen Cloud")

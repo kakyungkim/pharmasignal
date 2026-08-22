@@ -43,9 +43,9 @@
   신호 후보 6건
     [웹] Gastrointestinal Safety Assessment of GLP-1 Receptor ... - PMC
     [웹] Pharmacovigilance analysis of neurological adverse ...
-    [웹] Mortality and Serious Adverse Events Associated With ...
-    [웹] Psychiatric Safety Signals of GLP-1 Receptor Agonists
+    [웹] Exploring the Side Effects of GLP-1 Receptor Agonist
     [웹] Study: Unexpected Safety Signals Identified for ...
+    [웹] Gastrointestinal Safety Assessment of GLP-1 Receptor ...
     [웹] Adverse Events of GLP-1 Receptor Agonists for Weight Loss
 
 ──────────────────────────────────────────────────────────────────
@@ -54,56 +54,57 @@
   생성된 분석 코드:
     | from collections import Counter
     | 
-    | GLP1_TERMS = (
-    |     "glp-1", "glp1", "glp 1", "glucagon-like peptide", "glucagon like peptide",
-    |     "exenatide", "liraglutide", "dulaglutide", "semaglutide", "albiglutide",
-    |     "lixisenatide", "efpeglenatide", "taspoglutide", "tirzepatide",
-    |     "orforglipron", "danuglipron", "lotiglipron", "cotadutide", "survodutide",
-    |     "mazdutide", "ecnoglutide", "victoza", "byetta", "bydureon", "trulicity",
-    |     "ozempic", "wegovy", "rybelsus", "adlyxin", "tanzeum", "mounjaro"
-    | )
-    | ... (총 59줄)
+    | 
+    | def normalize(value):
+    |     text = str(value).strip() if value is not None else ""
+    |     return text or "UNKNOWN"
+    | 
+    | 
+    | total_trials = len(ROWS)
+    | 
+    | ... (총 38줄)
 
 ──────────────────────────────────────────────────────────────────
 [3/4] Daytona  ·  그 코드를 격리 샌드박스에서 돌려 숫자를 확인
 ──────────────────────────────────────────────────────────────────
 
   GLP-1 Landscape Report
-  Scope: GLP-1-related trials
-  Dataset trials: 15 | Reported trials: 3
+  Total trials: 15
   
   Trials per phase:
-    NA: 1
-    PHASE2: 1
-    PHASE4: 1
+  - NA: 5
+  - PHASE1: 4
+  - PHASE3: 3
+  - PHASE2: 2
+  - PHASE4: 1
   
   Trials per status:
-    COMPLETED: 2
-    RECRUITING: 1
+  - COMPLETED: 9
+  - RECRUITING: 4
+  - ENROLLING_BY_INVITATION: 1
+  - UNKNOWN: 1
   
-  Top 5 sponsors by trial count:
-    1. Johns Hopkins University: 1
-    2. Joslin Diabetes Center: 1
-    3. King's College London: 1
+  Top 5 sponsors:
+  1. Eli Lilly and Company: 2
+  2. Adrian Vella: 1
+  3. Azienda Ospedaliero-Universitaria di Parma: 1
+  4. Future University in Egypt: 1
+  5. German Diabetes Center: 1
 
 ──────────────────────────────────────────────────────────────────
 [대조] 생성된 집계를 고정 로직으로 다시 계산
 ──────────────────────────────────────────────────────────────────
-  1/5 일치 · 불일치 4건
-    어긋남: NA: 출력 1 vs 실제 5
-    어긋남: PHASE2: 출력 1 vs 실제 2
-    어긋남: COMPLETED: 출력 2 vs 실제 9
-    어긋남: RECRUITING: 출력 1 vs 실제 4
+  11/11 일치 · 커버리지 100%
 
 ──────────────────────────────────────────────────────────────────
 [4/4] Nosana  ·  밖으로 못 내보내는 텍스트는 우리 GPU 안에서만
 ──────────────────────────────────────────────────────────────────
 
-  ADVERSE EVENTS: persistent nausea and rapid weight loss, hospitalized with suspected cholecystitis  
-  SERIOUS: the hospitalized or serious case  
-  NEXT ACTION: a dose-adjustment protocol amendment will be submitted to the safety committee
+  ADVERSE EVENTS: Persistent nausea and rapid weight loss; hospitalized with suspected cholecystitis; dose-adjustment protocol amendment.
+  SERIOUS: dose-adjustment protocol amendment.
+  NEXT ACTION: A dose-adjustment protocol amendment will be submitted to the safety committee.
 
-  실행 원장: AgentForgeAI/docs/evidence/run-glp-1.json
+  실행 원장: AgentForgeAI/docs/evidence/runs-glp-1.jsonl
 
 ──────────────────────────────────────────────────────────────────
   단계      제공자                      상태

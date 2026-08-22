@@ -84,8 +84,11 @@ li::before{content:"";position:absolute;left:0;top:.6em;width:.5em;height:.5em;
 쓸 GPU가 없다는 조건까지 겹치는 것이 현장에서 흔함.</p></section>
 <section><span class="num">04 / 10</span><p class="kicker">해법</p>
 <h2>민감도에 따라 추론 경로를 나눔</h2>
-<div class="grid"><div class="card" style="--c:#5b8def;--t:#1d2a3f"><span class="step">1 · 수집</span><span class="who">Bright Data</span><span class="role">임상시험 등록과 규제 공시, 이상사례 문헌 검색</span><span class="why">봇 차단과 지역 제한을 넘어야 함</span></div><div class="card" style="--c:#a97bf0;--t:#2b273f"><span class="step">2 · 판단</span><span class="who">Qwen Cloud</span><span class="role">문서를 스키마로 뽑고 분석 코드를 작성</span><span class="why">형식이 제각각인 긴 문서를 다룸</span></div><div class="card" style="--c:#4fd1a5;--t:#1b3631"><span class="step">3 · 실행</span><span class="who">Daytona</span><span class="role">생성된 코드를 격리 샌드박스에서 실행</span><span class="why">모델이 쓴 코드를 호스트에 두지 않음</span></div><div class="card" style="--c:#f0776c;--t:#382627"><span class="step">4 · 반출 금지</span><span class="who">Nosana</span><span class="role">밖으로 못 내보내는 텍스트를 우리 GPU에서 추론</span><span class="why">없으면 규제 산업에서 도입 자체가 불가</span></div></div>
-<p class="lead">공개 데이터는 상용 API로 처리하고, 못 내보내는 것만 우리 GPU 안에서 다룸.</p></section>
+<div class="grid"><div class="card" style="--c:#5b8def;--t:#1d2a3f"><span class="step">1 · 수집</span><span class="who">Bright Data</span><span class="role">임상시험 등록과 규제 공시, 이상사례 문헌 검색</span><span class="why">봇 차단과 지역 제한을 넘어야 함</span></div><div class="card" style="--c:#a97bf0;--t:#2b273f"><span class="step">2 · 판단</span><span class="who">Qwen Cloud</span><span class="role">문서를 스키마로 뽑고 분석 코드를 작성</span><span class="why">형식이 제각각인 긴 문서를 다룸</span></div><div class="card" style="--c:#4fd1a5;--t:#1b3631"><span class="step">3 · 실행</span><span class="who">Daytona</span><span class="role">생성된 코드를 격리 샌드박스에서 실행</span><span class="why">모델이 쓴 코드를 호스트에 두지 않음</span></div><div class="card" style="--c:#f0776c;--t:#382627"><span class="step">4 · 반출 금지</span><span class="who">Nosana</span><span class="role">반출 금지 텍스트를 상용 제공자에게 보내지 않음</span><span class="why">이 경로가 없으면 민감 문서는 다루지 못함</span></div></div>
+<p class="lead">공개 데이터는 상용 API로 처리하고, 반출 금지 텍스트는 지정한 엔드포인트로만 보냄.</p>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">이 발상 자체는 선행이 있음.
+LiteLLM과 Portkey가 같은 라우팅을 제공하고 PAPILLON(NAACL 2025)이 같은 문제를 다룸.
+여기서 다른 것은 기본값으로, 교차 등급 폴백을 금지함.</p></section>
 <section><span class="num">05 / 10</span><p class="kicker">설계</p>
 <h2>이 경로에만 폴백을 두지 않음</h2>
 <div class="term">build_sovereign() → <span class="r">None</span>
@@ -94,6 +97,7 @@ li::before{content:"";position:absolute;left:0;top:.6em;width:.5em;height:.5em;
 슬쩍 상용 API로 새기 때문에, 기능을 잃는 쪽을 택함.</p></section>
 <section><span class="num">06 / 10</span><p class="kicker">검증</p>
 <h2>생성된 집계를 코드가 다시 따짐</h2>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">확립된 기법임. PAL과 PoT, LEVER가 원리를 세웠고 약물감시에도 이미 적용된 사례가 있음.</p>
 <div class="term"><span class="c">[대조] 생성된 집계를 고정 로직으로 다시 계산</span>
   <span class="g">11/11 일치</span></div>
 <p class="lead">모델이 낸 숫자가 맞는지를 모델에게 묻지 않음. 같은 집계를 고정 로직으로

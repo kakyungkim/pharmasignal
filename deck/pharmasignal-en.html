@@ -84,9 +84,12 @@ li::before{content:"";position:absolute;left:0;top:.6em;width:.5em;height:.5em;
 and it usually arrives alongside a team that has no GPU on hand.</p></section>
 <section><span class="num">04 / 10</span><p class="kicker">The approach</p>
 <h2>Split the inference path by data sensitivity</h2>
-<div class="grid"><div class="card" style="--c:#5b8def;--t:#1d2a3f"><span class="step">1 · Collect</span><span class="who">Bright Data</span><span class="role">Trial registries, filings, and a literature search for adverse events</span><span class="why">Bot blocking and geo limits stand in the way</span></div><div class="card" style="--c:#a97bf0;--t:#2b273f"><span class="step">2 · Reason</span><span class="who">Qwen Cloud</span><span class="role">Extracts a schema and writes the analysis code itself</span><span class="why">Long documents, no two formatted alike</span></div><div class="card" style="--c:#4fd1a5;--t:#1b3631"><span class="step">3 · Execute</span><span class="who">Daytona</span><span class="role">Runs the generated code in an isolated sandbox</span><span class="why">Model-written code never touches the host</span></div><div class="card" style="--c:#f0776c;--t:#382627"><span class="step">4 · Restricted</span><span class="who">Nosana</span><span class="role">Restricted text is inferred on GPUs we control</span><span class="why">Without it, regulated industries cannot adopt this</span></div></div>
-<p class="lead">Public data goes through commercial APIs. Only what cannot leave
-is handled on hardware we control.</p></section>
+<div class="grid"><div class="card" style="--c:#5b8def;--t:#1d2a3f"><span class="step">1 · Collect</span><span class="who">Bright Data</span><span class="role">Trial registries, filings, and a literature search for adverse events</span><span class="why">Bot blocking and geo limits stand in the way</span></div><div class="card" style="--c:#a97bf0;--t:#2b273f"><span class="step">2 · Reason</span><span class="who">Qwen Cloud</span><span class="role">Extracts a schema and writes the analysis code itself</span><span class="why">Long documents, no two formatted alike</span></div><div class="card" style="--c:#4fd1a5;--t:#1b3631"><span class="step">3 · Execute</span><span class="who">Daytona</span><span class="role">Runs the generated code in an isolated sandbox</span><span class="why">Model-written code never touches the host</span></div><div class="card" style="--c:#f0776c;--t:#382627"><span class="step">4 · Restricted</span><span class="who">Nosana</span><span class="role">Restricted text never reaches a commercial provider</span><span class="why">Without it, restricted documents cannot be touched at all</span></div></div>
+<p class="lead">Public data goes through commercial APIs. Restricted text is sent only
+to an endpoint we designate.</p>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">The idea is not new. LiteLLM and
+Portkey ship the same routing, and PAPILLON (NAACL 2025) studies the same problem. What differs
+here is the default: cross-tier fallback is forbidden.</p></section>
 <section><span class="num">05 / 10</span><p class="kicker">By design</p>
 <h2>This path alone has no fallback</h2>
 <div class="term">build_sovereign() → <span class="r">None</span>
@@ -95,6 +98,7 @@ is handled on hardware we control.</p></section>
 restricted text to a commercial API, so losing the feature is the better trade.</p></section>
 <section><span class="num">06 / 10</span><p class="kicker">Verification</p>
 <h2>Code re-checks what the model produced</h2>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">An established technique. PAL, PoT and LEVER set the principle, and it has already been applied in pharmacovigilance.</p>
 <div class="term"><span class="c">[crosscheck] recomputing the aggregates with fixed logic</span>
   <span class="g">11/11 agree</span></div>
 <p class="lead">We never ask the model whether its own numbers are right. The same aggregates

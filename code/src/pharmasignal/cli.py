@@ -12,6 +12,7 @@ import sys
 from .compare import DEFAULT_MODALITIES, ModalityProfile, build_table, read_across
 from .config import Settings
 from .providers import build_collector
+from .measure import DEFAULT_TOPICS, run as run_measure
 from .pipeline import Pipeline
 from .smoke import CHECKS, run_checks
 
@@ -73,6 +74,16 @@ def cmd_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_measure(args: argparse.Namespace) -> int:
+    """LLM이 쓴 집계 코드의 불일치율과 검증 커버리지를 잰다."""
+    settings = Settings.from_env(args.env)
+    _header(settings)
+    print(f"\n  주제 {len(args.topics or DEFAULT_TOPICS)}개 × {args.runs}회 실행\n")
+    m = run_measure(settings, args.topics or None, runs=args.runs, limit=args.limit)
+    print(m.report())
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pharmasignal",
                                 description="신약 안전성·경쟁 신호 감시 에이전트")
@@ -92,6 +103,12 @@ def build_parser() -> argparse.ArgumentParser:
     cmp_.add_argument("topics", nargs="*", help=f"기본값: {', '.join(DEFAULT_MODALITIES)}")
     cmp_.add_argument("--limit", type=int, default=30, help="계열당 수집 건수")
     cmp_.set_defaults(func=cmd_compare)
+
+    meas = sub.add_parser("measure", help="불일치율과 검증 커버리지 측정")
+    meas.add_argument("topics", nargs="*", help=f"기본값: {', '.join(DEFAULT_TOPICS)}")
+    meas.add_argument("--runs", type=int, default=2, help="주제당 실행 횟수")
+    meas.add_argument("--limit", type=int, default=20, help="수집 건수")
+    meas.set_defaults(func=cmd_measure)
     return p
 
 

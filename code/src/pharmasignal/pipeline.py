@@ -41,6 +41,7 @@ class Pipeline:
 
     settings: Settings
     emit: Emit = print
+    last_crosscheck: CrossCheck | None = None
 
     def run(self, topic: str, limit: int = 25,
             sensitive_text: str | None = None) -> RunReport:
@@ -52,6 +53,7 @@ class Pipeline:
         code = self._reason(report, topic, trials)
         out = self._execute(report, code, trials)
         check = self._crosscheck(out, trials)
+        self.last_crosscheck = check
         self._sovereign(report, sensitive_text or prompts.SAMPLE_SENSITIVE_MEMO)
 
         path = ledger.write(report, time.monotonic() - started, check)

@@ -147,9 +147,9 @@ def cards(ko: bool) -> str:
          "Runs the generated code in an isolated sandbox",
          "모델이 쓴 코드를 호스트에 두지 않음", "Model-written code never touches the host"),
         ("4 · 반출 금지", "4 · Restricted", "Nosana", NO, TNO,
-         "밖으로 못 내보내는 텍스트를 우리 GPU에서 추론",
-         "Restricted text is inferred on GPUs we control",
-         "없으면 규제 산업에서 도입 자체가 불가", "Without it, regulated industries cannot adopt this"),
+         "반출 금지 텍스트를 상용 제공자에게 보내지 않음",
+         "Restricted text never reaches a commercial provider",
+         "이 경로가 없으면 민감 문서는 다루지 못함", "Without it, restricted documents cannot be touched at all"),
     ]
     out = []
     for sk, se, name, c, t, rk, re_, wk, we in rows:
@@ -187,7 +187,10 @@ def slides(ko: bool) -> list[str]:
             f'''<section><p class="kicker">해법</p>
 <h2>민감도에 따라 추론 경로를 나눔</h2>
 <div class="grid">{c}</div>
-<p class="lead">공개 데이터는 상용 API로 처리하고, 못 내보내는 것만 우리 GPU 안에서 다룸.</p></section>''',
+<p class="lead">공개 데이터는 상용 API로 처리하고, 반출 금지 텍스트는 지정한 엔드포인트로만 보냄.</p>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">이 발상 자체는 선행이 있음.
+LiteLLM과 Portkey가 같은 라우팅을 제공하고 PAPILLON(NAACL 2025)이 같은 문제를 다룸.
+여기서 다른 것은 기본값으로, 교차 등급 폴백을 금지함.</p></section>''',
 
             f'''<section><p class="kicker">설계</p>
 <h2>이 경로에만 폴백을 두지 않음</h2>
@@ -198,6 +201,7 @@ def slides(ko: bool) -> list[str]:
 
             f'''<section><p class="kicker">검증</p>
 <h2>생성된 집계를 코드가 다시 따짐</h2>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">확립된 기법임. PAL과 PoT, LEVER가 원리를 세웠고 약물감시에도 이미 적용된 사례가 있음.</p>
 <div class="term"><span class="c">[대조] 생성된 집계를 고정 로직으로 다시 계산</span>
   <span class="g">11/11 일치</span></div>
 <p class="lead">모델이 낸 숫자가 맞는지를 모델에게 묻지 않음. 같은 집계를 고정 로직으로
@@ -263,8 +267,11 @@ and it usually arrives alongside a team that has no GPU on hand.</p></section>''
         f'''<section><p class="kicker">The approach</p>
 <h2>Split the inference path by data sensitivity</h2>
 <div class="grid">{c}</div>
-<p class="lead">Public data goes through commercial APIs. Only what cannot leave
-is handled on hardware we control.</p></section>''',
+<p class="lead">Public data goes through commercial APIs. Restricted text is sent only
+to an endpoint we designate.</p>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">The idea is not new. LiteLLM and
+Portkey ship the same routing, and PAPILLON (NAACL 2025) studies the same problem. What differs
+here is the default: cross-tier fallback is forbidden.</p></section>''',
 
         f'''<section><p class="kicker">By design</p>
 <h2>This path alone has no fallback</h2>
@@ -275,6 +282,7 @@ restricted text to a commercial API, so losing the feature is the better trade.<
 
         f'''<section><p class="kicker">Verification</p>
 <h2>Code re-checks what the model produced</h2>
+<p class="lead" style="font-size:clamp(.86rem,1.6vw,1.02rem)">An established technique. PAL, PoT and LEVER set the principle, and it has already been applied in pharmacovigilance.</p>
 <div class="term"><span class="c">[crosscheck] recomputing the aggregates with fixed logic</span>
   <span class="g">11/11 agree</span></div>
 <p class="lead">We never ask the model whether its own numbers are right. The same aggregates
