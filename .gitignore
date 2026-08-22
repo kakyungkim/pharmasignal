@@ -9,3 +9,5 @@ records/
 Certificate_*.pdf
 video/*
 !video/demo.mp4
+webtoon/
+scripts/make_webtoon.py

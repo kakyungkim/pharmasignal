@@ -34,7 +34,7 @@ W, H = 1280, 720
 PAD, LINE_H, FONT_SIZE = 28, 22, 15
 ROWS = (H - PAD * 2) // LINE_H
 FPS = 30
-LINES_PER_FRAME = 0.12       # 초당 약 3.6줄. 눈으로 따라 읽을 수 있는 속도
+LINES_PER_FRAME = 0.09       # 초당 약 2.7줄. 눈으로 따라 읽을 수 있는 속도
 HOLD_SEC = 4                   # 마지막 화면을 이만큼 붙잡는다
 
 FONT_CANDIDATES = [

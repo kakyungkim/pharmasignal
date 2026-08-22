@@ -1,7 +1,7 @@
 {
   "topic": "antibody-drug conjugate",
-  "recorded_at": "2026-08-22T23:41:13+0900",
-  "elapsed_sec": 102.1,
+  "recorded_at": "2026-08-22T23:49:45+0900",
+  "elapsed_sec": 117.9,
   "live_providers": [
     "Bright Data (SERP)",
     "Qwen Cloud",
@@ -29,7 +29,7 @@
       "provider": "Qwen Cloud",
       "ok": true,
       "degraded": false,
-      "detail": "57줄"
+      "detail": "74줄"
     },
     {
       "stage": "실행",
@@ -47,8 +47,8 @@
     }
   ],
   "crosscheck": {
-    "checked": 7,
-    "agreed": 7,
+    "checked": 2,
+    "agreed": 2,
     "ok": true,
     "mismatches": []
   }
