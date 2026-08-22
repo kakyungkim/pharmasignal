@@ -4,8 +4,21 @@
 """
 from __future__ import annotations
 
+import unicodedata
 from dataclasses import dataclass, field, asdict
 from typing import Any
+
+
+def _width(text: str) -> int:
+    """터미널에서 실제로 차지하는 칸 수. 한글·한자는 두 칸이다."""
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in text)
+
+
+def _pad(text: str, cols: int) -> str:
+    """표시 폭 기준 왼쪽 정렬."""
+    while _width(text) > cols and text:
+        text = text[:-1]
+    return text + " " * (cols - _width(text))
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,9 +69,14 @@ class RunReport:
         return [s.provider for s in self.stages if s.ok and not s.degraded]
 
     def summary_table(self) -> str:
-        rows = ["  단계        제공자              상태",
-                "  " + "-" * 46]
+        """실행 요약표.
+
+        한글은 터미널에서 두 칸을 차지하므로 len()이 아니라 표시 폭으로
+        맞춘다. 단계 이름이 한글이라 이걸 빼면 열이 행마다 어긋난다.
+        """
+        rows = [f"  {_pad('단계', 10)}{_pad('제공자', 28)}상태",
+                "  " + "-" * 44]
         for s in self.stages:
             mark = "실행" if s.ok and not s.degraded else ("폴백" if s.ok else "실패")
-            rows.append(f"  {s.stage:<10}  {s.provider:<26}  {mark}")
+            rows.append(f"  {_pad(s.stage, 10)}{_pad(s.provider, 28)}{mark}")
         return "\n".join(rows)

@@ -7,3 +7,5 @@ presentation/figures/
 presentation/*.pdf
 records/
 Certificate_*.pdf
+video/
+!video/.gitkeep

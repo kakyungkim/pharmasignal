@@ -3,7 +3,7 @@
   ○ Bright Data  ● Qwen Cloud  ● Daytona  ● Nosana    (● 설정됨 / ○ 폴백)
 
 ──────────────────────────────────────────────────────────────────
-[1/4] Bright Data  ·  공개 임상시험 데이터 수집
+[1/4] Bright Data  ·  찾기 · 흩어진 임상시험을 한곳으로
 ──────────────────────────────────────────────────────────────────
   경로: direct (fallback)
   임상시험 15건 수집
@@ -12,46 +12,63 @@
     - [NA] Proactive Population Health Management of Cardiovascular Disease in Primary Care
 
 ──────────────────────────────────────────────────────────────────
-[2/4] Qwen Cloud  ·  분석 코드 생성
+[2/4] Qwen Cloud  ·  읽기 · 문서를 구조로 바꾸고 분석 코드를 쓴다
 ──────────────────────────────────────────────────────────────────
   생성된 분석 코드:
     | from collections import Counter
     | 
     | 
-    | def clean(value, default="UNKNOWN"):
+    | def normalize(value, default="UNKNOWN"):
     |     if value is None:
     |         return default
-    |     value = str(value).strip()
-    |     return value or default
+    |     text = " ".join(str(value).split()).upper()
+    |     return text if text else default
     | 
     | 
-    | ... (총 37줄)
+    | ... (총 48줄)
 
 ──────────────────────────────────────────────────────────────────
-[3/4] Daytona  ·  생성 코드를 격리 샌드박스에서 실행
+[3/4] Daytona  ·  따지기 · 그 코드를 직접 돌려 숫자를 확인
 ──────────────────────────────────────────────────────────────────
 
-  GLP-1 landscape report
+  GLP-1 TRIAL LANDSCAPE
   Total trials: 15
-  Trials per phase: NA: 5; PHASE1: 4; PHASE3: 3; PHASE2: 2; PHASE4: 1
-  Trials per status: COMPLETED: 9; RECRUITING: 4; ENROLLING_BY_INVITATION: 1; UNKNOWN: 1
-  Top 5 sponsors: Eli Lilly and Company: 2; Novo Nordisk A/S: 1; German Diabetes Center: 1; Leiden University Medical Center: 1; King's College London: 1
+  
+  Trials by phase:
+    NA: 5
+    PHASE1: 4
+    PHASE3: 3
+    PHASE2: 2
+    PHASE4: 1
+  
+  Trials by status:
+    COMPLETED: 9
+    RECRUITING: 4
+    ENROLLING_BY_INVITATION: 1
+    UNKNOWN: 1
+  
+  Top 5 sponsors by trial count:
+    Eli Lilly and Company: 2
+    Adrian Vella: 1
+    Azienda Ospedaliero-Universitaria di Parma: 1
+    Future University in Egypt: 1
+    German Diabetes Center: 1
 
 ──────────────────────────────────────────────────────────────────
-[4/4] Nosana  ·  반출 금지 텍스트를 자체 GPU에서 추론
+[4/4] Nosana  ·  가두기 · 밖으로 못 내보내는 텍스트를 우리 GPU에서
 ──────────────────────────────────────────────────────────────────
 
-  ADVERSE EVENTS: Persistent nausea and rapid weight loss after week 6 of dosing; suspected cholecystitis; causality assessment is ongoing.
-  SERIOUS: Persistent nausea and rapid weight loss after week 6 of dosing.
-  NEXT ACTION: A dose-adjustment protocol amendment will be submitted to the safety committee.
+  ADVERSE EVENTS: Persistent nausea and rapid weight loss after week 6 of dosing; hospitalized with suspected cholecystitis; dose-adjustment protocol amendment will be submitted to the safety committee.  
+  SERIOUS: none  
+  NEXT ACTION: dose-adjustment protocol amendment will be submitted to the safety committee.
 
 ──────────────────────────────────────────────────────────────────
-  단계        제공자              상태
+  단계        제공자                      상태
   ----------------------------------------------
-  수집          direct (fallback)           폴백
-  판단          Qwen Cloud                  실행
-  실행          Daytona                     실행
-  주권          Nosana                      실행
+  찾기          direct (fallback)           폴백
+  읽기          Qwen Cloud                  실행
+  따지기         Daytona                     실행
+  가두기         Nosana                      실행
 
   실제 호출된 스폰서 플랫폼: 3개 — Qwen Cloud, Daytona, Nosana
 ──────────────────────────────────────────────────────────────────

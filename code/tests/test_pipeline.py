@@ -91,9 +91,9 @@ class TestReasoningTags:
 class TestReport:
     def test_counts_only_live_providers(self):
         report = RunReport(topic="GLP-1")
-        report.add(StageResult("수집", "Bright Data", ok=True))
-        report.add(StageResult("판단", "static (fallback)", ok=True, degraded=True))
-        report.add(StageResult("주권", "Nosana", ok=False))
+        report.add(StageResult("찾기", "Bright Data", ok=True))
+        report.add(StageResult("읽기", "static (fallback)", ok=True, degraded=True))
+        report.add(StageResult("가두기", "Nosana", ok=False))
         assert report.live_providers == ["Bright Data"]
         assert "폴백" in report.summary_table()
 
@@ -111,7 +111,7 @@ class TestPipelineOffline:
         lines: list[str] = []
         report = Pipeline(empty_settings, emit=lines.append).run("GLP-1")
 
-        assert [s.stage for s in report.stages] == ["수집", "판단", "실행", "주권"]
+        assert [s.stage for s in report.stages] == ["찾기", "읽기", "따지기", "가두기"]
         assert report.live_providers == []          # 전부 폴백
         assert any("수집 3건" in ln for ln in lines)
         assert any("폴백을 두지 않는 것이 의도된 동작" in ln for ln in lines)
