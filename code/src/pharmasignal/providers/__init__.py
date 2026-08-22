@@ -8,12 +8,16 @@ from __future__ import annotations
 
 from ..config import Settings
 from ..protocols import Collector, Executor, Reasoner
-from .collectors import BrightDataCollector, BrightDataProxyCollector, DirectCollector
+from .collectors import (
+    BrightDataCollector, BrightDataProxyCollector,
+    BrightDataSerpCollector, DirectCollector,
+)
 from .executors import DaytonaExecutor, LocalExecutor
 from .reasoners import NosanaReasoner, QwenReasoner, StaticReasoner
 
 __all__ = [
-    "BrightDataCollector", "BrightDataProxyCollector", "DirectCollector",
+    "BrightDataCollector", "BrightDataSerpCollector",
+    "BrightDataProxyCollector", "DirectCollector",
     "QwenReasoner", "StaticReasoner", "NosanaReasoner",
     "DaytonaExecutor", "LocalExecutor",
     "build_collector", "build_reasoner", "build_executor", "build_sovereign",
@@ -21,12 +25,17 @@ __all__ = [
 
 
 def build_collector(settings: Settings) -> Collector:
-    """Web Unlocker > 프록시 > 직접 호출 순으로 고른다.
+    """Bright Data 제품을 순서대로 시도하고, 다 안 되면 직접 호출로 간다.
 
-    계정에 따라 Web Unlocker가 열려 있지 않아 프록시만 쓸 수 있다.
-    둘 다 Bright Data 실사용이고 반환 형태도 같다.
+    Web Unlocker > SERP API > 프록시 순이다. 계정마다 열려 있는 제품이 달라서
+    하나가 막혔다고 스폰서를 통째로 포기하지 않도록 갈래를 나눴다.
+
+    [해커톤 이후 업데이트] 원래 Web Unlocker 하나뿐이었고, 그것이 막히자
+    수집 단계가 통째로 폴백이 됐다. 제품이 여러 개라는 것을 먼저 확인했어야 했다.
     """
-    for candidate in (BrightDataCollector(settings), BrightDataProxyCollector(settings)):
+    for candidate in (BrightDataCollector(settings),      # 제품 1: Web Unlocker
+                      BrightDataSerpCollector(settings),  # 제품 2: SERP API
+                      BrightDataProxyCollector(settings)):  # 제품 3: 프록시
         if candidate.available():
             return candidate
     return DirectCollector(settings)
