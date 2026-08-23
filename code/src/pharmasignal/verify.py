@@ -132,3 +132,77 @@ def crosscheck(output: str, trials: list[Trial]) -> CrossCheck:
             f"기준값 {result.checkable}개 가운데 {result.checked}개만 대조됐다. "
             "출력의 나머지는 검사되지 않았다")
     return result
+
+
+# ── ROR 대조 ──────────────────────────────────────────────────────────
+#
+# [해커톤 이후 업데이트 2026-08-23] 개수 세기 대조는 두 가지 문제가 있었다.
+# 모델이 거의 틀리지 않아 잴 것이 없었고, 고정 로직이 이미 계산하는 것을 다시
+# 시키는 구조라 LLM을 쓸 이유가 약했다.
+#
+# ROR은 다르다. 분할표를 짜고 0인 칸을 보정하고 로그 변환으로 구간을 구하는
+# 다단계 계산이라 틀릴 자리가 많다. `signal.py`가 같은 값을 독립으로 구하므로
+# 진짜 오라클이 된다.
+
+_ROR_LINE = re.compile(
+    r"^\s*(?P<term>.+?)\s*\|\s*(?P<aff>\d+)\s*/\s*(?P<risk>\d+)\s*\|"
+    r"\s*ROR\s*=\s*(?P<ror>[\d.]+)\s*\|\s*CI\s*=\s*(?P<lo>[\d.]+)\s*-\s*(?P<hi>[\d.]+)",
+    re.M)
+_SIGNALS = re.compile(r"SIGNALS\s*=\s*(\d+)")
+
+
+def crosscheck_ror(output: str, truth: list, tol: float = 0.02,
+                   printed_places: int = 2, expected_rows: int = 8) -> CrossCheck:
+    """모델이 낸 ROR과 신뢰구간을 고정 로직 값과 대조한다.
+
+    완전 일치를 요구하지 않는다. 두 가지를 함께 허용한다.
+
+    - 상대 오차 `tol`(기본 2%). 부동소수 연산 순서가 달라도 통과한다.
+    - **출력 자릿수만큼의 절대 오차.** 소수 둘째 자리로 찍으라고 지시했으므로
+      0.005까지는 반올림으로 생기는 차이다. 이걸 허용하지 않으면 0.12와 0.12가
+      어긋났다고 나온다. 잡음을 재게 된다.
+    """
+    by_term = {t.term: t for t in truth}
+    # 분모는 **출력에 나오기로 한 값의 수**다. 용어 전체를 분모로 잡으면
+    # 상위 8개만 찍으라고 지시해 놓고 커버리지가 3%로 나온다. 검사하지 못한
+    # 것이 아니라 애초에 출력되지 않기로 한 것이므로 분모에 들어가면 안 된다.
+    result = CrossCheck(checkable=min(expected_rows, len(by_term)) * 2 + 1)
+    rounding = 0.5 * 10 ** -printed_places
+
+    def near(a: float, b: float) -> bool:
+        return abs(a - b) <= max(tol * abs(b), rounding)
+
+    for m in _ROR_LINE.finditer(output):
+        term = m.group("term").strip()
+        ref = by_term.get(term)
+        if ref is None:
+            # 고정 로직에 없는 용어를 모델이 만들어 냈다면 그것도 어긋남이다
+            result.checked += 1
+            result.mismatches.append(
+                f"{term[:34]}: 기준값에 없는 용어 · 근처: “{_context(output, m.start())}”")
+            continue
+        result.checked += 1
+        if near(float(m.group("ror")), ref.ror):
+            result.agreed += 1
+        else:
+            result.mismatches.append(
+                f"{term[:30]} ROR: 출력 {m.group('ror')} vs 실제 {ref.ror:.2f}")
+        result.checked += 1
+        if near(float(m.group("lo")), ref.ci_low):
+            result.agreed += 1
+        else:
+            result.mismatches.append(
+                f"{term[:30]} CI 하한: 출력 {m.group('lo')} vs 실제 {ref.ci_low:.2f}")
+
+    m = _SIGNALS.search(output)
+    if m:
+        expected = sum(1 for t in truth if t.is_signal)
+        result.checked += 1
+        if int(m.group(1)) == expected:
+            result.agreed += 1
+        else:
+            result.mismatches.append(f"신호 수: 출력 {m.group(1)} vs 실제 {expected}")
+
+    if result.checked == 0:
+        result.notes.append("출력에서 ROR 줄을 찾지 못했다. 형식이 지시와 다르다")
+    return result

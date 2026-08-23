@@ -7,32 +7,33 @@
 ──────────────────────────────────────────────────────────────────
   경로: direct (fallback)
   임상시험 15건 수집
-    - [PHASE3] Comparison of NN1250 Versus Insulin Glargine in Subjects With Type 2 Diabetes
-    - [PHASE1] Probiotics as a Novel Approach to Modulate Gut Hormone Secretion and Risk Factor
-    - [NA] Proactive Population Health Management of Cardiovascular Disease in Primary Care
+    - [NA] A Feasibility Study to Determine the Most Appropriate Digital Dietary Assessment
+    - [NA] Is Insulin Resistance and/or Glucose Intolerance Pathogenetic in the Development
+    - [PHASE4] The Effect of Exenatide Compared to Lantus Insulin on Vascular Function in Type 
 
 ──────────────────────────────────────────────────────────────────
 [1c] 이상사례 불균형 분석 (고정 로직)
 ──────────────────────────────────────────────────────────────────
-  기여 시험 9건 · 이상사례 2276줄
-    NCT00308139    755줄  (33.2%)
-    NCT01241448    612줄  (26.9%)
-    NCT00982644    332줄  (14.6%)
-    NCT01588366    235줄  (10.3%)
-    NCT05963022    216줄  ( 9.5%)
+  기여 시험 7건 · 이상사례 3975줄
+    NCT01179048   3120줄  (78.5%)
+    NCT02527200    460줄  (11.6%)
+    NCT05963022    216줄  ( 5.4%)
+    NCT01554618     84줄  ( 2.1%)
+    NCT01512108     64줄  ( 1.6%)
+  ! 한 시험이 전체의 78%를 차지한다. 이 결과는 그 시험의 성격에 좌우된다
 
 
-  용어 148종 분석 · 신호 후보 70종 (95% 신뢰구간 하한 > 1)
+  용어 620종 분석 · 신호 후보 172종 (95% 신뢰구간 하한 > 1)
   이상사례                      기관계                          영향/위험     ROR          95% CI
   ------------------------------------------------------------------------------------
-  Nasopharyngitis           Infections and infes    513/2807     12.24     11.09-13.51 *
-  Upper respiratory tract   Infections and infes    473/3043     10.01      9.05-11.07 *
-  Catheter site haematoma   General disorders         7/30       15.61      6.70-36.40 *
-  Nausea                    Gastrointestinal dis    341/3114      6.56       5.85-7.36 *
-  Diarrhoea                 Gastrointestinal dis    381/3707      6.14       5.50-6.84 *
-  Back pain                 Musculoskeletal and     226/2115      6.29       5.47-7.24 *
-  Headache                  Nervous system disor    261/2702      5.64       4.96-6.43 *
-  Injection site pruritus   General disorders        83/829       5.76       4.58-7.23 *
+  Hyperuricaemia            Metabolism and nutri     15/206      78.89    46.63-133.46 *
+  Oropharyngeal pain        Respiratory, thoraci      5/56       98.41    39.27-246.61 *
+  Acute myocardial infarct  Cardiac disorders       342/9340     39.03     34.99-43.53 *
+  Nausea                    Gastrointestinal dis    741/23717    34.04     31.58-36.69 *
+  Regurgitation             Gastrointestinal dis     11/206      56.65    30.85-104.01 *
+  Angina unstable           Cardiac disorders       296/9546     32.75     29.14-36.82 *
+  Injection site haematoma  General disorders         4/56       77.21    27.92-213.50 *
+  Pneumonia                 Infections and infes    275/9494     30.49     27.01-34.41 *
 
   * 신호 후보. 인과성 판단이 아니라 사람이 들여다볼 목록임
   분모는 이 검색어로 잡힌 시험들 안의 상대 빈도다. 시판 후 데이터베이스를 쓰는 정식 신호 탐지와는 규모가 다르다
@@ -44,65 +45,50 @@
     [웹] Gastrointestinal Safety Assessment of GLP-1 Receptor ... - PMC
     [웹] Pharmacovigilance analysis of neurological adverse ...
     [웹] Exploring the Side Effects of GLP-1 Receptor Agonist
-    [웹] Study: Unexpected Safety Signals Identified for ...
     [웹] Gastrointestinal Safety Assessment of GLP-1 Receptor ...
-    [웹] Adverse Events of GLP-1 Receptor Agonists for Weight Loss
+    [웹] Study: Unexpected Safety Signals Identified for ...
+    [웹] Adverse Events of Oral GLP-1 Receptor Agonist (Semaglutide ...
 
 ──────────────────────────────────────────────────────────────────
-[2/4] Qwen Cloud  ·  문서를 구조로 바꾸고 분석 코드를 쓴다
+[2/4] Qwen Cloud  ·  이상사례 불균형 분석 코드를 쓴다
 ──────────────────────────────────────────────────────────────────
   생성된 분석 코드:
-    | from collections import Counter
+    | import math
     | 
-    | 
-    | def normalize(value):
-    |     text = str(value).strip() if value is not None else ""
-    |     return text or "UNKNOWN"
-    | 
-    | 
-    | total_trials = len(ROWS)
-    | 
-    | ... (총 38줄)
+    | agg = {}
+    | for row in EVENTS:
+    |     term = row["term"]
+    |     if term not in agg:
+    |         agg[term] = [0, 0]
+    |     agg[term][0] += row["n_affected"]
+    | ... (총 64줄)
 
 ──────────────────────────────────────────────────────────────────
 [3/4] Daytona  ·  그 코드를 격리 샌드박스에서 돌려 숫자를 확인
 ──────────────────────────────────────────────────────────────────
 
-  GLP-1 Landscape Report
-  Total trials: 15
-  
-  Trials per phase:
-  - NA: 5
-  - PHASE1: 4
-  - PHASE3: 3
-  - PHASE2: 2
-  - PHASE4: 1
-  
-  Trials per status:
-  - COMPLETED: 9
-  - RECRUITING: 4
-  - ENROLLING_BY_INVITATION: 1
-  - UNKNOWN: 1
-  
-  Top 5 sponsors:
-  1. Eli Lilly and Company: 2
-  2. Adrian Vella: 1
-  3. Azienda Ospedaliero-Universitaria di Parma: 1
-  4. Future University in Egypt: 1
-  5. German Diabetes Center: 1
+  Hyperuricaemia | 15/206 | ROR=78.89 | CI=46.63-133.46
+  Oropharyngeal pain | 5/56 | ROR=98.41 | CI=39.27-246.61
+  Acute myocardial infarction | 342/9340 | ROR=39.03 | CI=34.99-43.53
+  Nausea | 741/23717 | ROR=34.04 | CI=31.58-36.69
+  Regurgitation | 11/206 | ROR=56.65 | CI=30.85-104.01
+  Angina unstable | 296/9546 | ROR=32.75 | CI=29.14-36.82
+  Injection site haematoma | 4/56 | ROR=77.21 | CI=27.92-213.50
+  Pneumonia | 275/9494 | ROR=30.49 | CI=27.01-34.41
+  SIGNALS=172
 
 ──────────────────────────────────────────────────────────────────
-[대조] 생성된 집계를 고정 로직으로 다시 계산
+[대조] 생성된 ROR을 고정 로직 값과 맞춰 봄
 ──────────────────────────────────────────────────────────────────
-  11/11 일치 · 커버리지 100%
+  17/17 일치 · 커버리지 100%
 
 ──────────────────────────────────────────────────────────────────
 [4/4] Nosana  ·  밖으로 못 내보내는 텍스트는 우리 GPU 안에서만
 ──────────────────────────────────────────────────────────────────
 
-  ADVERSE EVENTS: Persistent nausea and rapid weight loss; hospitalized with suspected cholecystitis; dose-adjustment protocol amendment.
-  SERIOUS: dose-adjustment protocol amendment.
-  NEXT ACTION: A dose-adjustment protocol amendment will be submitted to the safety committee.
+  ADVERSE EVENTS: Persistent Nausea and Rapid Weight Loss, Hospitalized Patient with Suspected Cholecystitis  
+  SERIOUS: Hospitalized Patient with Suspected Cholecystitis  
+  NEXT ACTION: Submit dose-adjustment protocol amendment to the safety committee
 
   실행 원장: AgentForgeAI/docs/evidence/runs-glp-1.jsonl
 

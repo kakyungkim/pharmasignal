@@ -15,14 +15,18 @@ from ..models import Trial
 _PREAMBLE = "import json as _json\nROWS = _json.loads({rows})\n\n"
 
 
-def _payload(code: str, rows: list[Trial]) -> str:
+def _payload(code: str, rows: list[Trial], events: list | None = None) -> str:
     """분석 코드가 참조할 ROWS를 앞에 붙인다.
 
     JSON을 파이썬 소스에 그대로 박으면 None이 null로 나와 실행이 깨진다.
     JSON 문자열 리터럴로 한 번 더 감싸 json.loads로 되살린다.
     """
     data = json.dumps([t.as_dict() for t in rows])       # ensure_ascii=True
-    return _PREAMBLE.format(rows=json.dumps(data)) + code
+    head = _PREAMBLE.format(rows=json.dumps(data))
+    if events is not None:
+        ev = json.dumps([e.as_dict() for e in events])
+        head += f"EVENTS = _json.loads({json.dumps(ev)})\n\n"
+    return head + code
 
 
 class DaytonaExecutor:
@@ -36,12 +40,12 @@ class DaytonaExecutor:
     def available(self) -> bool:
         return bool(self._s.daytona_api_key)
 
-    def run(self, code: str, rows: list[Trial]) -> str:
+    def run(self, code: str, rows: list[Trial], events: list | None = None) -> str:
         from daytona import Daytona
 
         sandbox = Daytona().create()
         try:
-            return sandbox.process.code_run(_payload(code, rows)).result
+            return sandbox.process.code_run(_payload(code, rows, events)).result
         finally:
             with contextlib.suppress(Exception):
                 sandbox.delete()
@@ -58,8 +62,8 @@ class LocalExecutor:
     def available(self) -> bool:
         return True
 
-    def run(self, code: str, rows: list[Trial]) -> str:
+    def run(self, code: str, rows: list[Trial], events: list | None = None) -> str:
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            exec(_payload(code, rows), {})  # noqa: S102 - 폴백 경로 한정
+            exec(_payload(code, rows, events), {})  # noqa: S102 - 폴백 경로 한정
         return buf.getvalue()

@@ -9,8 +9,8 @@ records/
 Certificate_*.pdf
 video/*
 !video/demo.mp4
-webtoon/
-scripts/make_webtoon.py
+webtoon/_codex_test/
+webtoon/panels/*.png
 tone-samples/
 video/explain/s_*.mp3
 video/explain/t_*.mp3

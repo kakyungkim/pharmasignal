@@ -25,7 +25,7 @@ from .providers import (
 )
 from .providers.reasoners import FALLBACK_ANALYSIS_CODE
 from .signal import Disproportionality, analyze, provenance, summary
-from .verify import CrossCheck, crosscheck
+from .verify import CrossCheck, crosscheck, crosscheck_ror
 from . import ledger
 
 Emit = Callable[[str], None]
@@ -48,11 +48,19 @@ class Pipeline:
         started = time.monotonic()
         report = RunReport(topic=topic)
         trials = self._collect(report, topic, limit)
-        rows = self._disproportionality(report, topic, limit)
+        rows, events = self._disproportionality(report, topic, limit)
         self._search_signals(report, topic)
-        code = self._reason(report, topic, trials)
-        out = self._execute(report, code, trials)
-        check = self._crosscheck(out, trials)
+
+        # 이상사례가 있으면 그쪽을 과제로 삼는다. 개수 세기보다 틀릴 자리가 많고,
+        # 고정 로직이 같은 값을 독립으로 구하므로 대조가 진짜 오라클이 된다.
+        if rows:
+            code = self._reason_ror(report, events)
+            out = self._execute(report, code, trials, events)
+            check = self._crosscheck_ror(out, rows)
+        else:
+            code = self._reason(report, topic, trials)
+            out = self._execute(report, code, trials)
+            check = self._crosscheck(out, trials)
         self.last_crosscheck = check
         self._sovereign(report, sensitive_text or prompts.SAMPLE_SENSITIVE_MEMO)
 
@@ -96,9 +104,45 @@ class Pipeline:
                                detail=f"{len(trials)}건", payload=trials))
         return trials
 
+    # ── 2b. ROR 코드 생성 ───────────────────────────────────────────
+    def _reason_ror(self, report: RunReport, events: list[AdverseEvent]) -> str:
+        """모델에게 불균형 분석 코드를 쓰게 한다."""
+        provider = build_reasoner(self.settings)
+        self._banner(2, "Qwen Cloud", "이상사례 불균형 분석 코드를 쓴다", provider)
+        degraded = _is_fallback(provider)
+        used = provider.name
+        try:
+            code = provider.write_ror_code(events)
+        except Exception as exc:
+            self.emit(f"  실패 → 기본 분석 코드로 폴백: {exc!r:.120}")
+            code, degraded = FALLBACK_ANALYSIS_CODE, True
+            used = f"{provider.name} 시도 → static"
+
+        lines = code.splitlines()
+        self.emit("  생성된 분석 코드:")
+        for line in lines[:8]:
+            self.emit(f"    | {line}")
+        if len(lines) > 8:
+            self.emit(f"    | ... (총 {len(lines)}줄)")
+        report.add(StageResult("판단", used, ok=True, degraded=degraded,
+                               detail=f"{len(lines)}줄 · ROR", payload=code))
+        return code
+
+    # ── 3.5b ROR 대조 ───────────────────────────────────────────────
+    def _crosscheck_ror(self, out: str, rows: list[Disproportionality]) -> CrossCheck:
+        bar = "─" * 66
+        self.emit(f"\n{bar}\n[대조] 생성된 ROR을 고정 로직 값과 맞춰 봄\n{bar}")
+        check = crosscheck_ror(out, rows)
+        self.emit(f"  {check.summary()}")
+        for m in check.mismatches[:6]:
+            self.emit(f"    어긋남: {m}")
+        for n in check.notes:
+            self.emit(f"    {n}")
+        return check
+
     # ── 1c. 이상사례 불균형 분석 ────────────────────────────────────
     def _disproportionality(self, report: RunReport, topic: str,
-                            limit: int) -> list[Disproportionality]:
+                            limit: int) -> tuple[list[Disproportionality], list[AdverseEvent]]:
         """등록된 시험 결과의 이상사례를 모아 ROR을 구한다.
 
         이 계산에는 LLM이 개입하지 않는다. 고정 로직이고, 뒤의 대조 단계에서
@@ -113,12 +157,12 @@ class Pipeline:
             self.emit(f"  수집 실패: {exc!r:.140}")
             report.add(StageResult("이상사례", provider.name, ok=False,
                                    detail=repr(exc)[:100]))
-            return []
+            return [], []
 
         if not events:
             self.emit("  결과가 등록된 시험이 없어 이상사례를 얻지 못함")
             report.add(StageResult("이상사례", provider.name, ok=False, detail="0건"))
-            return []
+            return [], []
 
         for line in provenance(events):
             self.emit(line)
@@ -131,7 +175,7 @@ class Pipeline:
         report.add(StageResult("이상사례", provider.name, ok=True,
                                detail=f"용어 {len(rows)}종, 신호 {signals}종",
                                payload=rows))
-        return rows
+        return rows, events
 
     # ── 1b. 신호 검색 ───────────────────────────────────────────────
     def _search_signals(self, report: RunReport, topic: str) -> list[Signal]:
@@ -186,12 +230,13 @@ class Pipeline:
         return code
 
     # ── 3. 실행 ────────────────────────────────────────────────────────
-    def _execute(self, report: RunReport, code: str, trials: list[Trial]) -> str:
+    def _execute(self, report: RunReport, code: str, trials: list[Trial],
+                 events: list[AdverseEvent] | None = None) -> str:
         provider = build_executor(self.settings)
         self._banner(3, "Daytona", "그 코드를 격리 샌드박스에서 돌려 숫자를 확인", provider)
         degraded = _is_fallback(provider)
         try:
-            out = provider.run(code, trials)
+            out = provider.run(code, trials, events)
         except Exception as exc:
             self.emit(f"  실패 → 기본 분석 코드로 재실행: {exc!r:.120}")
             from .providers import LocalExecutor

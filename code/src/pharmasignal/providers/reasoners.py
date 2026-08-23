@@ -92,6 +92,11 @@ class _OpenAICompatReasoner:
         prompt = prompts.analysis_code(topic, [t.as_dict() for t in sample[:2]])
         return _strip_fences(self.complete(prompt, max_tokens=1200))
 
+    def write_ror_code(self, events: list) -> str:
+        """이상사례 불균형 분석 코드를 쓰게 한다."""
+        prompt = prompts.disproportionality_code([e.as_dict() for e in events[:3]])
+        return _strip_fences(self.complete(prompt, max_tokens=1600))
+
 
 class QwenReasoner(_OpenAICompatReasoner):
     """Qwen Cloud — 공개 데이터 추론과 분석 코드 생성."""
@@ -140,4 +145,7 @@ class StaticReasoner:
         raise RuntimeError("StaticReasoner는 자유 형식 추론을 지원하지 않는다")
 
     def write_analysis_code(self, topic: str, sample: list[Trial]) -> str:
+        return FALLBACK_ANALYSIS_CODE
+
+    def write_ror_code(self, events: list) -> str:
         return FALLBACK_ANALYSIS_CODE

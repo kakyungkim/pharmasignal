@@ -1,0 +1,87 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PharmaSignal 웹툰</title><style>
+@font-face{font-family:Pretendard;src:url('file:///Users/kkkim/Documents/Study/GPTers/02_Wed/23기결과물검수/전체발표회/fonts/Pretendard-Regular.otf');font-weight:400}
+@font-face{font-family:Pretendard;src:url('file:///Users/kkkim/Documents/Study/GPTers/02_Wed/23기결과물검수/전체발표회/fonts/Pretendard-SemiBold.otf');font-weight:600}
+@font-face{font-family:Pretendard;src:url('file:///Users/kkkim/Documents/Study/GPTers/02_Wed/23기결과물검수/전체발표회/fonts/Pretendard-Bold.otf');font-weight:700}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f1418;color:#eef3f6;font-family:Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif;
+ line-height:1.6;padding:clamp(20px,4vw,48px) clamp(12px,3vw,24px)}
+.wrap{max-width:660px;margin:0 auto}
+header{text-align:center;margin-bottom:clamp(24px,5vw,44px)}
+.kicker{color:#4fd1a5;font-size:.82rem;letter-spacing:.2em;font-weight:600}
+h1{font-size:clamp(1.7rem,5.4vw,2.6rem);font-weight:800;letter-spacing:-.02em;margin:.3em 0}
+.sub{color:#93a4b1;font-size:clamp(.9rem,2.4vw,1.05rem)}
+.cut{margin-bottom:clamp(28px,6vw,52px)}
+.cut img{width:100%;height:auto;display:block;border-radius:14px 14px 0 0;
+ box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.real{background:#161d23;border:1px solid #26313a;border-top:none;
+ border-radius:0 0 14px 14px;padding:clamp(16px,3.4vw,24px)}
+.rh{display:flex;align-items:center;gap:.6em;font-size:.92rem;font-weight:600;margin-bottom:.9em}
+.rh .n{color:#4fd1a5;font-weight:800;letter-spacing:.08em}
+.rh em{margin-left:auto;font-style:normal;color:#93a4b1;font-size:.74rem;
+ border:1px solid #26313a;border-radius:999px;padding:.2em .7em}
+.term{background:#0a0f13;border:1px solid #26313a;border-radius:10px;
+ padding:clamp(11px,2.2vw,16px);overflow-x:auto;white-space:pre;
+ font-family:'SF Mono',ui-monospace,Menlo,monospace;
+ font-size:clamp(.6rem,2.05vw,.78rem);line-height:1.62}
+.term .g{color:#4fd1a5;font-weight:600} .term .c{color:#93a4b1}
+.term .r{color:#f0776c;font-weight:600} .term .y{color:#e8b04b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.card{background:var(--t);border:1px solid #26313a;border-top:3px solid var(--c);
+ border-radius:10px;padding:12px 14px}
+.card b{display:block;color:var(--c);font-size:.94rem}
+.card span{color:#93a4b1;font-size:.78rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4em}
+.tags span{border:1px solid #26313a;background:#0a0f13;border-radius:999px;
+ padding:.28em .8em;font-size:.76rem;color:#93a4b1}
+.say{color:#93a4b1;font-size:clamp(.82rem,2.3vw,.94rem);margin-top:.9em}
+.say b{color:#e8b04b;font-weight:600}
+footer{text-align:center;color:#93a4b1;font-size:.84rem;
+ border-top:1px solid #26313a;padding-top:1.4em;margin-top:1em}
+footer a{color:#4fd1a5;text-decoration:none}
+</style></head><body><div class="wrap">
+<header>
+  <p class="kicker">PHARMASIGNAL</p>
+  <h1>신호는 늘 거기 있었다</h1>
+  <p class="sub">밖으로 못 내보내는 데이터를 어떻게 다룰 것인가</p>
+</header>
+<section class="cut">
+  <img src="web/panel_01.jpg" alt="밤 사무실" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">01</span>밤 사무실<em>실제 산출물</em></div><div class="tags"><span>ClinicalTrials.gov</span><span>FDA 공시</span><span>EMA</span><span>PubMed</span><span>FAERS</span></div><p class="say">담당자가 아침마다 여는 창들. 각각 형식이 다르고 상당수가 자동 수집을 막아 둔다.</p></div>
+</section><section class="cut">
+  <img src="web/panel_02.jpg" alt="흩어진 출처" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">02</span>흩어진 출처<em>실제 산출물</em></div><div class="term"><span class="c">$ pharmasignal run "antibody-drug conjugate"</span>
+
+  임상시험 <span class="g">20건</span> 수집
+  이상사례 <span class="g">6,298줄</span> · 용어 <span class="g">318종</span> · 기여 시험 15건
+  <span class="y">! 한 시험이 전체의 42%를 차지한다</span></div><p class="say">분모를 숨기지 않는다. 한 시험이 결과를 좌우하면 그 사실을 화면에 적는다.</p></div>
+</section><section class="cut">
+  <img src="web/panel_03.jpg" alt="더 큰 벽" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">03</span>더 큰 벽<em>실제 산출물</em></div><div class="term"><span class="c">>>> assert_public(memo, "Qwen Cloud")</span>
+<span class="r">RestrictedContent</span>: Qwen Cloud로 보낼 수 없음
+  · 반출 금지 표지: 대외비
+  · 식별 가능 패턴: 피험자 식별자 꼴</div><p class="say">상용 경로로 나가기 직전에 검사한다. 걸리면 <b>다른 모델로 넘기지 않고 멈춘다.</b></p></div>
+</section><section class="cut">
+  <img src="web/panel_04.jpg" alt="해법" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">04</span>해법<em>실제 산출물</em></div><div class="grid"><div class="card" style="--c:#5b8def;--t:#1d2a3f"><b>Bright Data</b><span>수집과 문헌 검색</span></div><div class="card" style="--c:#a97bf0;--t:#2b273f"><b>Qwen Cloud</b><span>분석 코드 생성</span></div><div class="card" style="--c:#4fd1a5;--t:#1b3631"><b>Daytona</b><span>격리 실행</span></div><div class="card" style="--c:#f0776c;--t:#382627"><b>Nosana</b><span>반출 금지 추론</span></div></div><p class="say">네 플랫폼이 실제로 호출된다. <b>4/4</b></p></div>
+</section><section class="cut">
+  <img src="web/panel_05.jpg" alt="검증" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">05</span>검증<em>실제 산출물</em></div><div class="term"><span class="c">[대조] 생성된 ROR을 고정 로직 값과 맞춰 봄</span>
+  <span class="g">17/17 일치 · 커버리지 100%</span>
+
+<span class="c">15회 실행 누적</span>
+  대조한 값 <span class="g">255개</span> · 불일치율 <span class="g">0.0%</span></div><p class="say">처음엔 0/17이었다. 모델이 틀린 게 아니라 <b>명세가 모호했다.</b> 걸러낸 용어를 분모에 넣을지 안 적어서 서로 다르게 읽었다.</p></div>
+</section><section class="cut">
+  <img src="web/panel_06.jpg" alt="결과" loading="lazy">
+  <div class="real"><div class="rh"><span class="n">06</span>결과<em>실제 산출물</em></div><div class="term"><span class="c">이상사례            영향/위험      ROR      95% CI</span>
+  Elevated ALT/AST    22/35      <span class="g">38.54</span>   19.41-76.52 *
+  Rash, maculopapular 19/35      <span class="g">27.03</span>   13.90-52.59 *
+  Alopecia           367/1181    <span class="g">10.57</span>    9.33-11.97 *
+  Peripheral Neuropathy 15/35    <span class="g">17.07</span>    8.74-33.35 *</div><p class="say">ADC의 알려진 독성 프로파일과 맞는다. <b>인과성 판단이 아니라 사람이 들여다볼 목록이다.</b></p></div>
+</section>
+<footer>
+  <p>컷 아래 숫자는 전부 실제 실행 결과다</p>
+  <p><a href="https://github.com/kakyungkim/pharmasignal">github.com/kakyungkim/pharmasignal</a></p>
+</footer>
+</div></body></html>

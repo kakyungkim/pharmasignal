@@ -28,9 +28,24 @@ from ..models import AdverseEvent, Signal, Trial
 
 CTGOV_API = "https://clinicaltrials.gov/api/v2/studies"
 
+# 계열을 무엇으로 정의하느냐.
+#
+# [해커톤 이후 업데이트 2026-08-23] `query.term`은 제목·요약·조건을 가리지 않고
+# 훑어서 엉뚱한 시험을 끌어온다. "antibody-drug conjugate"가 "conjugate vaccine"을
+# 잡아 이상사례 분석 결과가 백신 반응원성으로 기울었다. 주사부위 통증과 보챔이
+# ADC 독성 상위에 오르는 일이 실제로 있었다.
+#
+# `query.intr`는 **개입(intervention) 필드만** 본다. 계열은 무엇을 투여했는지로
+# 정의되는 것이므로 이쪽이 맞다. ADC 기준 1,521건에서 839건으로 줄면서 표본에
+# 섞여 있던 백신 시험이 사라졌다.
+#
+# 완전하지는 않다. 개입명이 자유 텍스트라 표기가 제각각이고, MeSH 용어나 통일된
+# 약물 코드로 옮기는 것이 다음 단계다. 다만 검색 범위를 좁힌 것만으로도
+# 오염이 크게 줄었다.
+
 
 def _build_query(topic: str, limit: int) -> str:
-    return f"{CTGOV_API}?query.term={requests.utils.quote(topic)}&pageSize={limit}"
+    return f"{CTGOV_API}?query.intr={requests.utils.quote(topic)}&pageSize={limit}"
 
 
 def _build_ae_query(topic: str, limit: int) -> str:
@@ -39,7 +54,7 @@ def _build_ae_query(topic: str, limit: int) -> str:
     결과가 등록된 시험에만 `resultsSection`이 붙는다. 완료된 시험으로 좁히면
     빈 응답을 줄일 수 있다.
     """
-    return (f"{CTGOV_API}?query.term={requests.utils.quote(topic)}"
+    return (f"{CTGOV_API}?query.intr={requests.utils.quote(topic)}"
             f"&filter.overallStatus=COMPLETED&pageSize={limit}"
             f"&fields=NCTId,ResultsSection")
 
